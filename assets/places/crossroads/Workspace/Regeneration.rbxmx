@@ -1,0 +1,206 @@
+<roblox version="4">
+  <Item class="Model" referent="0">
+    <Properties>
+      <string name="Name">Regeneration</string>
+      <CoordinateFrame name="ModelInPrimary">
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+        <R00>1</R00>
+        <R01>0</R01>
+        <R02>0</R02>
+        <R10>0</R10>
+        <R11>1</R11>
+        <R12>0</R12>
+        <R20>0</R20>
+        <R21>0</R21>
+        <R22>1</R22>
+      </CoordinateFrame>
+      <Ref name="PrimaryPart">null</Ref>
+      <BinaryString name="Tags"></BinaryString>
+    </Properties>
+    <Item class="Script" referent="1">
+      <Properties>
+        <string name="Name">Regenerate Lost Temple</string>
+        <bool name="Disabled">false</bool>
+        <Content name="LinkedSource">
+          <null>
+          </null>
+        </Content>
+        <BinaryString name="ScriptGuid"><![CDATA[e0NCQTRFOTEwLUVDRkItNEM3Mi1CN0UyLTJEODU5NjI2RkU5Nn0=]]></BinaryString>
+        <string name="Source"><![CDATA[model = game.Workspace.LostTemple
+messageText = "Regenerating Lost Temple..."
+
+message = Instance.new("Message")
+message.Text = messageText
+backup = model:clone()
+
+while true do
+	wait(script.Parent.RegenerationTime.Value*(1-math.random()*0.8))
+
+	message.Parent = game.Workspace
+	model:remove()
+
+	wait(script.Parent.RegenerationDelay.Value)
+
+	model = backup:clone()
+	model.Parent = game.Workspace
+	model:makeJoints()
+	message.Parent = nil
+end
+]]></string>
+        <BinaryString name="Tags"></BinaryString>
+      </Properties>
+    </Item>
+    <Item class="NumberValue" referent="2">
+      <Properties>
+        <string name="Name">RegenerationTime</string>
+        <BinaryString name="Tags"></BinaryString>
+        <double name="Value">700</double>
+      </Properties>
+    </Item>
+    <Item class="NumberValue" referent="3">
+      <Properties>
+        <string name="Name">RegenerationDelay</string>
+        <BinaryString name="Tags"></BinaryString>
+        <double name="Value">2</double>
+      </Properties>
+    </Item>
+    <Item class="Script" referent="4">
+      <Properties>
+        <string name="Name">Regenerate Castle</string>
+        <bool name="Disabled">false</bool>
+        <Content name="LinkedSource">
+          <null>
+          </null>
+        </Content>
+        <BinaryString name="ScriptGuid"><![CDATA[ezQ4OUQ4MUEwLUFERjktNDhCRS1BRkJGLTc3NTk4QTNGMUFDOH0=]]></BinaryString>
+        <string name="Source"><![CDATA[model = game.Workspace.BlackrockCastle
+messageText = "Regenerating Blackrock Castle..."
+
+message = Instance.new("Message")
+message.Text = messageText
+backup = model:clone()
+
+while true do
+	wait(script.Parent.RegenerationTime.Value*(1-math.random()*0.8))
+
+	message.Parent = game.Workspace
+	model:remove()
+
+	wait(script.Parent.RegenerationDelay.Value)
+
+	model = backup:clone()
+	model.Parent = game.Workspace
+	model:makeJoints()
+	message.Parent = nil
+end
+]]></string>
+        <BinaryString name="Tags"></BinaryString>
+      </Properties>
+    </Item>
+    <Item class="Script" referent="5">
+      <Properties>
+        <string name="Name">Regenerate Ramp and Trees</string>
+        <bool name="Disabled">false</bool>
+        <Content name="LinkedSource">
+          <null>
+          </null>
+        </Content>
+        <BinaryString name="ScriptGuid"><![CDATA[ezhBMDM3NEQxLTQ0REYtNDdFQy05OEFGLTRBMkY1M0ExOUEzQ30=]]></BinaryString>
+        <string name="Source"><![CDATA[ramp = game.Workspace:findFirstChild("Overhead Ramp")
+trees = game.Workspace.Trees
+
+backup_ramp = ramp:clone()
+backup_trees = trees:clone()
+
+while true do
+	wait(script.Parent.RegenerationTime.Value*(1-math.random()*0.8))
+
+	ramp:remove()
+        trees:remove()
+
+	wait(script.Parent.RegenerationDelay.Value)
+
+	ramp = backup_ramp:clone()
+        ramp.Parent = game.Workspace
+        ramp:makeJoints()
+
+	trees = backup_trees:clone()
+	trees.Parent = game.Workspace
+	trees:makeJoints()
+
+
+end
+]]></string>
+        <BinaryString name="Tags"></BinaryString>
+      </Properties>
+    </Item>
+    <Item class="Script" referent="6">
+      <Properties>
+        <string name="Name">Regenerate Tower</string>
+        <bool name="Disabled">false</bool>
+        <Content name="LinkedSource">
+          <null>
+          </null>
+        </Content>
+        <BinaryString name="ScriptGuid"><![CDATA[ezQyM0YxQUY4LUExRDQtNEQ3MC1BQjRGLTc5QkM5NjJGRTkxQn0=]]></BinaryString>
+        <string name="Source"><![CDATA[model = game.Workspace.Tower
+messageText = "Regenerating Tower..."
+
+message = Instance.new("Message")
+message.Text = messageText
+backup = model:clone()
+
+while true do
+	wait(script.Parent.RegenerationTime.Value*(1-math.random()*0.8))
+
+	message.Parent = game.Workspace
+	model:remove()
+
+	wait(script.Parent.RegenerationDelay.Value)
+
+	model = backup:clone()
+	model.Parent = game.Workspace
+	model:makeJoints()
+	message.Parent = nil
+end
+]]></string>
+        <BinaryString name="Tags"></BinaryString>
+      </Properties>
+    </Item>
+    <Item class="Script" referent="7">
+      <Properties>
+        <string name="Name">Regenerate Hideout</string>
+        <bool name="Disabled">false</bool>
+        <Content name="LinkedSource">
+          <null>
+          </null>
+        </Content>
+        <BinaryString name="ScriptGuid"><![CDATA[ezlCREI5NTcxLTlCMzgtNDA2RS04QTY3LUREQTZEQkM5N0I4NH0=]]></BinaryString>
+        <string name="Source"><![CDATA[model = game.Workspace.Hideout
+messageText = "Regenerating Thieves Den..."
+
+message = Instance.new("Message")
+message.Text = messageText
+backup = model:clone()
+
+while true do
+	wait(script.Parent.RegenerationTime.Value*(1-math.random()*0.8))
+
+	message.Parent = game.Workspace
+	model:remove()
+
+	wait(script.Parent.RegenerationDelay.Value)
+
+	model = backup:clone()
+	model.Parent = game.Workspace
+	model:makeJoints()
+	message.Parent = nil
+end
+]]></string>
+        <BinaryString name="Tags"></BinaryString>
+      </Properties>
+    </Item>
+  </Item>
+</roblox>

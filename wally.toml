@@ -1,0 +1,30 @@
+[package]
+name = "fluxxdb/senshi"
+version = "0.0.0"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+private = true
+
+[place]
+server-packages = "game.ServerStorage.Packages"
+shared-packages = "game.ReplicatedStorage.Packages"
+
+[dependencies]
+t = "osyrisrblx/t@3.0.0"
+Cmdr = "evaera/cmdr@1.11.0"
+Net = "vorlias/net@3.0.1"
+Sift = "csqrl/sift@0.0.5"
+Trove = "sleitnick/trove@0.5.0"
+Loader = "sleitnick/loader@2.0.0"
+Signal = "sleitnick/signal@^1"
+Promise = "evaera/promise@4.0.0"
+React = "core-packages/react@17.0.1-rc.19"
+ReactRoblox = "core-packages/react-roblox@17.0.1-rc.19"
+RoactComapt = "core-packages/roact-compat@17.0.1-rc.19"
+Rodux = "roblox/rodux@4.0.0-rc.0"
+RoduxHooks = "brinkokevin/react-hooks@0.3.1"
+ReactSpring = "chriscerie/react-spring@1.1.5"
+MockMemoryStore = "vorlias/mock-memory-store-service@0.2.0"
+
+[server-dependencies]
+Lapis = "nezuo/lapis@0.2.1"

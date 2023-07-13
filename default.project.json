@@ -1,0 +1,78 @@
+{
+	"name": "SENSHI",
+	"globIgnorePaths": [
+		"**/package.json",
+		"**/tsconfig.json"
+	],
+	"tree": {
+		"$className": "DataModel",
+		"ServerScriptService": {
+			"$className": "ServerScriptService",
+			"Framework": {
+				"$className": "Folder",
+				"$path": "src/server"
+
+			}
+		},
+		"ServerStorage": {
+			"$className": "ServerStorage",
+			"Packages": {
+				"$className": "Folder",
+				"$path": "ServerPackages"
+			}
+		},
+		"Players": {
+			"$className": "Players",
+			"$properties": {
+				"CharacterAutoLoads": false
+			}
+		},
+		"ReplicatedStorage": {
+			"$className": "ReplicatedStorage",
+			"types": {
+				"$path": "src/types"
+			},
+			"shared": {
+				"$className": "Folder",
+				"$path": "src/shared"
+			},
+			"packages": {
+				"$path": "Packages"
+			},
+			"vendor": {
+				"$path": "src/vendor"
+			}
+		},
+		"StarterPlayer": {
+			"$className": "StarterPlayer",
+			"$properties": {
+				"HealthDisplayDistance": 0,
+				"NameDisplayDistance": 0,
+				"CameraMode": "Classic",
+				"DevCameraOcclusionMode": "Invisicam",
+				"DevComputerCameraMovementMode": "UserChoice",
+				"DevTouchCameraMovementMode": "UserChoice",
+				"LoadCharacterAppearance": false,
+				"UserEmotesEnabled": false,
+				"DevComputerMovementMode": "UserChoice",
+				"DevTouchMovementMode": "UserChoice",
+				"EnableMouseLockOption": false,
+				"GameSettingsAvatar": "R15",
+				"GameSettingsR15Collision": "InnerBox"
+			},
+			"StarterPlayerScripts": {
+				"$className": "StarterPlayerScripts",
+				"Framework": {
+					"$className": "Folder",
+					"$path": "src/client"
+				}
+			}
+		},
+		"HttpService": {
+			"$className": "HttpService",
+			"$properties": {
+				"HttpEnabled": true
+			}
+		}
+	}
+}

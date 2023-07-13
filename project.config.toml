@@ -1,0 +1,22 @@
+[auth]
+publishKey = "API_KEY"
+messageKey = "API_KEY"
+
+[shutdown]
+topic = "ShutdownTrigger"
+defaultMessage = "Servers are updating, please wait!"
+packetTemplate = "$MESSAGE"
+
+[tests]
+runner = "tests/runner.lua"
+project = "tests.project.json"
+output = "tests.rbxl"
+
+[places.default]
+project = "default.project.json"
+output = "default.rbxl"
+
+[places.default.environments]
+Testing = "universeId/placeId"
+Staging = "universeId/placeId"
+Production = "universeId/placeId"

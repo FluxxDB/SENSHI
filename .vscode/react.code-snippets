@@ -1,0 +1,24 @@
+{
+    "reactcomponent": {
+        "prefix": [
+            "reactcomponent"
+        ],
+        "body": [
+            "local ReplicatedStorage = game:GetService(\"ReplicatedStorage\")",
+            "local Packages = ReplicatedStorage:WaitForChild(\"Packages\")",
+            "",
+            "local React = require(Packages.React)",
+            "local e = React.createElement",
+            "",
+            "type TProps = {$1}",
+            "",
+            "function ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/g}(props: TProps, _)",
+            "\treturn e($2)",
+            "end",
+            "",
+            "return ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/g}",
+            ""
+        ],
+        "description": "React Component"
+    }
+}
