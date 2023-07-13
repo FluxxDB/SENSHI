@@ -17,6 +17,6 @@ project = "default.project.json"
 output = "default.rbxl"
 
 [places.default.environments]
-Testing = "universeId/placeId"
-Staging = "universeId/placeId"
-Production = "universeId/placeId"
+Testing = "4863887347/14043701192"
+Staging = "4863887347/14043701192"
+Production = "4863887347/14043701192"
