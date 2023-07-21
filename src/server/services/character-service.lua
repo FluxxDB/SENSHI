@@ -6,10 +6,14 @@ local assets = ReplicatedStorage:WaitForChild("Assets")
 local entityBases = assets:WaitForChild("EntityBases")
 local charactersFolder = workspace:WaitForChild("Entities"):WaitForChild("Characters")
 
+local Remotes = require(ReplicatedStorage.Shared["remotes"])
+local Remote = Remotes.Server:GetNamespace("Character"):Get("Spawn")
 
--- Simply spawns the character; See PlayerService for more in-depth player setup
--- @params { player, profile, spawnParams } - Player the character belongs to; Data of the player; Spawn Parameters
--- @return { character }                    - Returns the character created
+--[=[
+    Simply spawns the character; See PlayerService for more in-depth player setup
+    @params { player, profile, spawnParams } - Player the character belongs to; Data of the player; Spawn Parameters
+    @return { character }                    - Returns the character created
+--]=]
 function CharacterService:spawnCharacter(player, profile, spawnParams: SpawnParamsTypes.TSpawnParams)
     local character = entityBases:FindFirstChild(spawnParams.rigType):Clone()
     character.Name = player.DisplayName
@@ -20,6 +24,7 @@ function CharacterService:spawnCharacter(player, profile, spawnParams: SpawnPara
 end
 
 function CharacterService:onInit()
+    print("Character")
 end
 
 function CharacterService:onStart()
