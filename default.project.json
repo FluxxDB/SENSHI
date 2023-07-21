@@ -16,7 +16,7 @@
 		},
 		"ServerStorage": {
 			"$className": "ServerStorage",
-			"Packages": {
+			"ServerPackages": {
 				"$className": "Folder",
 				"$path": "ServerPackages"
 			}
@@ -32,14 +32,14 @@
 			"types": {
 				"$path": "src/types"
 			},
-			"shared": {
+			"Shared": {
 				"$className": "Folder",
 				"$path": "src/shared"
 			},
-			"packages": {
+			"Packages": {
 				"$path": "Packages"
 			},
-			"vendor": {
+			"Vendor": {
 				"$path": "src/vendor"
 			}
 		},
