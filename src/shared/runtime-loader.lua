@@ -1,7 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
-local Packages = ReplicatedStorage:WaitForChild("packages")
+local Packages = ReplicatedStorage.Packages
 local Loader = require(Packages.Loader)
 
 local modulesMatch = if RunService:IsClient() then "controller$" else "service$"
