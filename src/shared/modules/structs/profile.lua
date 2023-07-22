@@ -1,6 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local BaseStruct = require(ReplicatedStorage.Shared.class.BaseStruct)
+local BaseStruct = require(ReplicatedStorage.Shared.classes.BaseStruct)
 local BitBuffer = require(ReplicatedStorage.Vendor.BitBuffer)
 
 export type TProfile = {

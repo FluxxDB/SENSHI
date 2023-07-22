@@ -44,7 +44,7 @@
         "body": [
           "local ReplicatedStorage = game:GetService(\"ReplicatedStorage\")",
           "",
-          "local BaseStruct = require(ReplicatedStorage.Shared.class.BaseStruct)",
+          "local BaseStruct = require(ReplicatedStorage.Shared.classes.BaseStruct)",
           "local BitBuffer = require(ReplicatedStorage.Vendor.BitBuffer)",
           "",
           "export type T${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/g} = {",
