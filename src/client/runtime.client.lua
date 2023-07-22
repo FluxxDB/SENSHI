@@ -5,6 +5,4 @@ local Gizmos = require(ReplicatedStorage.Vendor.ImGizmo)
 local Framework = script.Parent
 
 Gizmos.Init()
-RuntimeLoader.loadModules(
-    Framework:WaitForChild("controllers")
-)
+RuntimeLoader.loadModules(Framework:WaitForChild("controllers"))

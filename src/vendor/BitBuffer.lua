@@ -99,22 +99,6 @@ local function bitBuffer(stream)
 
         return table.concat(output, " ")
     end
-
-    local function dumpStringOld()
-        -- This function is for accessing the total contents of the bitbuffer.
-        -- This function combines all the bytes, including the last byte, into a string of binary data.
-        -- Thus, bytes [97, 101] and bits [1, 1, 0] would become (in hex) "0x61 0x65 0x06"
-
-        -- It's substantially faster to create several smaller strings before using table.concat. (well maybe it was, but it isn't now post 2022)
-        local output = table.create(math.ceil(byteCount / 4096)) --!
-        local c = 1
-        for i = 1, byteCount, 4096 do -- groups of 4096 bytes is the point at which there are diminishing returns
-            output[c] = string.char(table.unpack(bytes, i, math.min(byteCount, i + 4095)))
-            c = c + 1
-        end
-
-        return table.concat(output, "")
-	end
 	
 	--Let lua be lua	
 	local function dumpString()

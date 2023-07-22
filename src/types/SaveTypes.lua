@@ -1,4 +1,4 @@
-local TableTypes = require(script.Parent["table-types"])
+local TableTypes = require(script.Parent["TableTypes"])
 
 type Array<T> = TableTypes.Array<T>
 type Dictionary<T> = TableTypes.Dictionary<T>

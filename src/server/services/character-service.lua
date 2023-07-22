@@ -1,5 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local SpawnParamsTypes = require(ReplicatedStorage.types["spawn-params"])
+local SpawnParamsTypes = require(ReplicatedStorage.types["SpawnParams"])
 local CharacterService = {}
 
 local assets = ReplicatedStorage:WaitForChild("Assets")
@@ -15,19 +15,18 @@ local Remote = Remotes.Server:GetNamespace("Character"):Get("Spawn")
     @return { character }                    - Returns the character created
 --]=]
 function CharacterService:spawnCharacter(player, profile, spawnParams: SpawnParamsTypes.TSpawnParams)
-    local character = entityBases:FindFirstChild(spawnParams.rigType):Clone()
-    character.Name = player.DisplayName
-    character.Parent = charactersFolder
-    player.Character = character
+	local character = entityBases:FindFirstChild(spawnParams.rigType):Clone()
+	character.Name = player.DisplayName
+	character.Parent = charactersFolder
+	player.Character = character
 
-    return character
+	return character
 end
 
 function CharacterService:onInit()
-    print("Character")
+	print("Character")
 end
 
-function CharacterService:onStart()
-end
+function CharacterService:onStart() end
 
 return CharacterService
