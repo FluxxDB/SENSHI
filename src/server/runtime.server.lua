@@ -1,6 +1,10 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RuntimeLoader = require(ReplicatedStorage.Shared["runtime-loader"])
+local start = require(ReplicatedStorage.Shared.start)
+local setupTags = require(ReplicatedStorage.Shared.setupTags)
 
-local Framework = script.Parent
+local world = start({
+	script.Parent.systems,
+	ReplicatedStorage.Shared.systems,
+})
 
-RuntimeLoader.loadModules(Framework:WaitForChild("services"))
+setupTags(world)

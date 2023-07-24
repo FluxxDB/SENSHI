@@ -6,11 +6,13 @@ realm = "shared"
 private = true
 
 [place]
-server-packages = "game.ServerStorage.Packages"
 shared-packages = "game.ReplicatedStorage.Packages"
 
 [dependencies]
 t = "osyrisrblx/t@3.0.0"
+Matter = "evaera/matter@0.6.2"
+Plasma = "evaera/plasma@0.4.2"
+Rewire = "sayhisam1/rewire@0.3.0"
 Cmdr = "evaera/cmdr@1.11.0"
 Net = "vorlias/net@3.0.1"
 Sift = "csqrl/sift@0.0.5"
@@ -25,6 +27,3 @@ Rodux = "roblox/rodux@4.0.0-rc.0"
 RoduxHooks = "brinkokevin/react-hooks@0.3.1"
 ReactSpring = "chriscerie/react-spring@1.1.5"
 MockMemoryStore = "vorlias/mock-memory-store-service@0.2.0"
-
-[server-dependencies]
-Lapis = "nezuo/lapis@0.2.1"
