@@ -3,6 +3,7 @@ local Matter = require(ReplicatedStorage.Packages.Matter)
 
 local COMPONENTS = {
 	"DebugLabel",
+	"EntityType",
 	"Player",
 
 	"Health",

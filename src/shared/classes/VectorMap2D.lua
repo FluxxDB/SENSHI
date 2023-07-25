@@ -1,16 +1,16 @@
 --!strict
 
-local Vector2Map = {}
-Vector2Map.__index = Vector2Map
+local VectorMap2D = {}
+VectorMap2D.__index = VectorMap2D
 
-function Vector2Map.new(voxelSize: number?)
+function VectorMap2D.new(voxelSize: number?)
 	return setmetatable({
 		_voxelSize = voxelSize or 50,
 		_voxels = {},
-	}, Vector2Map)
+	}, VectorMap2D)
 end
 
-function Vector2Map:_debugDrawVoxel(voxelKey: Vector2)
+function VectorMap2D:_debugDrawVoxel(voxelKey: Vector3)
 	local box = Instance.new("Part")
 	box.Name = tostring(voxelKey)
 	box.Anchored = true
@@ -29,36 +29,36 @@ function Vector2Map:_debugDrawVoxel(voxelKey: Vector2)
 	task.delay(1 / 30, box.Destroy, box)
 end
 
-function Vector2Map:AddEntity(position: Vector2, object: any)
+function VectorMap2D:AddEntity(entityType: string, position: Vector3, object: any)
 	local voxelSize = self._voxelSize
-	local voxelKey = Vector2.new(math.floor(position.X / voxelSize), math.floor(position.Y / voxelSize))
+	local voxelKey = Vector3.new(math.floor(position.X / voxelSize), 0, math.floor(position.Z / voxelSize))
 
 	local voxel = self._voxels[voxelKey]
 	if voxel == nil then
 		self._voxels[voxelKey] = {
-			["Entity"] = { object },
+			[entityType] = { object },
 		}
-	elseif voxel["Entity"] == nil then
-		voxel["Entity"] = { object }
+	elseif voxel[entityType] == nil then
+		voxel[entityType] = { object }
 	else
-		table.insert(voxel["Entity"], object)
+		table.insert(voxel[entityType], object)
 	end
 
 	return voxelKey
 end
 
-function Vector2Map:RemoveEntity(voxelKey: Vector2, object: any)
+function VectorMap2D:RemoveEntity(entityType: string, voxelKey: Vector3, object: any)
 	local voxel = self._voxels[voxelKey]
 
 	if voxel == nil then
 		return
 	end
 
-	if voxel["Entity"] == nil then
+	if voxel[entityType] == nil then
 		return
 	end
 
-	local classBucket = voxel["Entity"]
+	local classBucket = voxel[entityType]
 	for index, storedObject in ipairs(classBucket) do
 		if storedObject == object then
 			local n = #classBucket
@@ -70,7 +70,7 @@ function Vector2Map:RemoveEntity(voxelKey: Vector2, object: any)
 
 	-- Remove empty class bucket
 	if #classBucket == 0 then
-		voxel["Entity"] = nil :: any
+		voxel[entityType] = nil :: any
 
 		-- Remove empty voxel
 		if next(voxel) == nil then
@@ -79,9 +79,9 @@ function Vector2Map:RemoveEntity(voxelKey: Vector2, object: any)
 	end
 end
 
-function Vector2Map:AddObject(position: Vector2, object: any)
+function VectorMap2D:AddObject(position: Vector3, object: any)
 	local voxelSize = self._voxelSize
-	local voxelKey = Vector2.new(math.floor(position.X / voxelSize), math.floor(position.Y / voxelSize))
+	local voxelKey = Vector3.new(math.floor(position.X / voxelSize), 0, math.floor(position.Z / voxelSize))
 
 	local voxel = self._voxels[voxelKey]
 
@@ -99,7 +99,7 @@ function Vector2Map:AddObject(position: Vector2, object: any)
 	return voxelKey
 end
 
-function Vector2Map:RemoveObject(voxelKey: Vector2, object: any)
+function VectorMap2D:RemoveObject(voxelKey: Vector3, object: any)
 	local voxel = self._voxels[voxelKey]
 
 	if voxel == nil then
@@ -133,33 +133,32 @@ function Vector2Map:RemoveObject(voxelKey: Vector2, object: any)
 	end
 end
 
-function Vector2Map:GetVoxel(voxelKey: Vector2)
+function VectorMap2D:GetVoxels(voxelKey: Vector3)
+	return self._voxels
+end
+
+function VectorMap2D:GetVoxel(voxelKey: Vector3)
 	return self._voxels[voxelKey]
 end
 
-function Vector2Map:ClearVoxel(voxelKey: Vector2)
+function VectorMap2D:ClearVoxel(voxelKey: Vector3)
 	self._voxels[voxelKey] = {}
 end
 
-function Vector2Map:ForEachObjectInRadius(point: Vector2, radius: number, callback: (string, any) -> ())
-	local voxelSize = self._voxelSize
-	local voxelKey = Vector2.new(math.floor(point.X / voxelSize), math.floor(point.Y / voxelSize))
-
-	local voxelRadius = math.ceil(radius / voxelSize)
-
+function VectorMap2D:ForEachObjectInRadius(voxelKey: Vector3, voxelRadius: number, callback: (string, any) -> ())
 	local xMin, xMax = voxelKey.X - voxelRadius, voxelKey.X + voxelRadius
-	local yMin, yMax = voxelKey.Y - voxelRadius, voxelKey.Y + voxelRadius
+	local yMin, yMax = voxelKey.Z - voxelRadius, voxelKey.Z + voxelRadius
 
 	for x = xMin, xMax do
 		for y = yMin, yMax do
-			local voxel = self._voxels[Vector2.new(x, y)]
+			local voxelPos = Vector3.new(x, 0, y)
+			local voxel = self._voxels[voxelPos]
 			if voxel then
-				local voxelPos = Vector2.new(x * voxelSize, y * voxelSize)
-				local distanceSquared = (voxelPos - point).magnitude
-				if distanceSquared <= radius then
-					for className, objects in pairs(voxel) do
+				local distanceSquared = (voxelPos - voxelKey).Magnitude
+				if distanceSquared <= voxelRadius then
+					for entityType, objects in pairs(voxel) do
 						for _, object in ipairs(objects) do
-							callback(className, object)
+							callback(entityType, object)
 						end
 					end
 				end
@@ -168,18 +167,18 @@ function Vector2Map:ForEachObjectInRadius(point: Vector2, radius: number, callba
 	end
 end
 
-function Vector2Map:ForEachObjectInRegion(top: Vector2, bottom: Vector2, callback: (string, any) -> ())
+function VectorMap2D:ForEachObjectInRegion(top: Vector3, bottom: Vector3, callback: (string, any) -> ())
 	local voxelSize = self._voxelSize
-	local xMin, yMin = math.min(bottom.X, top.X), math.min(bottom.Y, top.Y)
-	local xMax, yMax = math.max(bottom.X, top.X), math.max(bottom.Y, top.Y)
+	local xMin, yMin = math.min(bottom.X, top.X), math.min(bottom.Z, top.Z)
+	local xMax, yMax = math.max(bottom.X, top.X), math.max(bottom.Z, top.Z)
 
 	for x = math.floor(xMin / voxelSize), math.floor(xMax / voxelSize) do
 		for y = math.floor(yMin / voxelSize), math.floor(yMax / voxelSize) do
-			local voxel = self._voxels[Vector2.new(x, y)]
+			local voxel = self._voxels[Vector3.new(x, 0, y)]
 			if voxel then
-				for className, objects in pairs(voxel) do
+				for entityType, objects in pairs(voxel) do
 					for _, object in ipairs(objects) do
-						callback(className, object)
+						callback(entityType, object)
 					end
 				end
 			end
@@ -187,7 +186,7 @@ function Vector2Map:ForEachObjectInRegion(top: Vector2, bottom: Vector2, callbac
 	end
 end
 
-function Vector2Map:ForEachObjectInView(camera: Camera, distance: number, callback: (string, any) -> ())
+function VectorMap2D:ForEachObjectInView(camera: Camera, distance: number, callback: (string, any) -> ())
 	local voxelSize = self._voxelSize
 	local cameraCFrame = camera.CFrame
 	local cameraPos = cameraCFrame.Position
@@ -214,10 +213,10 @@ function Vector2Map:ForEachObjectInView(camera: Camera, distance: number, callba
 	local maxBound =
 		cameraPos:Max(farPlaneTopLeft):Max(farPlaneTopRight):Max(farPlaneBottomLeft):Max(farPlaneBottomRight)
 
-	minBound = Vector2.new(math.floor(minBound.X / voxelSize), math.floor(minBound.Z / voxelSize))
-	maxBound = Vector2.new(math.floor(maxBound.X / voxelSize), math.floor(maxBound.Z / voxelSize))
+	minBound = Vector3.new(math.floor(minBound.X / voxelSize), 0, math.floor(minBound.Z / voxelSize))
+	maxBound = Vector3.new(math.floor(maxBound.X / voxelSize), 0, math.floor(maxBound.Z / voxelSize))
 
-	local function isPointInView(point: Vector2): boolean
+	local function isPointInView(point: Vector3): boolean
 		-- Check if point lies outside frustum OBB
 		local relativeToOBB = frustumCFrameInverse * Vector3.new(point.X, 0, point.Y)
 		if
@@ -247,9 +246,9 @@ function Vector2Map:ForEachObjectInView(camera: Camera, distance: number, callba
 
 	for x = minBound.X, maxBound.X do
 		for y = minBound.Y, maxBound.Y do
-			local voxel = self._voxels[Vector2.new(x, y)]
+			local voxel = self._voxels[Vector3.new(x, 0, y)]
 			if voxel then
-				local voxelPos = Vector2.new(x * voxelSize, y * voxelSize)
+				local voxelPos = Vector3.new(x * voxelSize, 0, y * voxelSize)
 				if isPointInView(voxelPos) then
 					for className, objects in pairs(voxel) do
 						for _, object in ipairs(objects) do
@@ -262,8 +261,8 @@ function Vector2Map:ForEachObjectInView(camera: Camera, distance: number, callba
 	end
 end
 
-function Vector2Map:ClearAll()
+function VectorMap2D:ClearAll()
 	self._voxels = {}
 end
 
-return Vector2Map
+return VectorMap2D

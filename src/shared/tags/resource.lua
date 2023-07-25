@@ -9,7 +9,7 @@ local object = {
 }
 
 function object:instanceAdded(world: Matter.World, instance: BasePart)
-	if instance:IsA("BasePart") ~= true or instance:IsDescendantOf(workspace) then
+	if instance:IsA("BasePart") ~= true or instance:IsDescendantOf(workspace) == false then
 		return
 	end
 

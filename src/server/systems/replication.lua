@@ -25,7 +25,6 @@ local function replication(world)
 		if world:contains(characterId) == false then
 			continue
 		end
-		print(player, characterId, "Player Joined", world:contains(characterId))
 		-- local payload = {}
 
 		-- local characterTransform = world:get(characterId, Components.Transform)
