@@ -5,19 +5,29 @@ local Matter = require(Packages.Matter)
 local Signal = require(Packages.Signal)
 local Components = require(ReplicatedStorage.Shared.components)
 
+local random = Random.new()
 local useEvent = Matter.useEvent
 local characterAdded = Signal.new()
 
-local function playerEntitySystem(world)
+local function playerSpawner(world)
 	for _, player: Player in useEvent(Players, "PlayerAdded") do
-		local characterId =
-			world:spawn(Components.Model(), Components.Health(), Components.Transform({ cFrame = CFrame.new(0, 0, 0) }))
-		task.defer(characterAdded.Fire, characterAdded, player, characterId)
+		local characterId = world:spawn(
+			Components.Player({ instance = player }),
+			Components.Model(),
+			Components.Health(),
+			Components.Transform({
+				-- Testing Random Spawn
+				cframe = CFrame.new(random:NextNumber(-50, 50) * 2048, 0, random:NextNumber(-50, 50) * 2048),
+			})
+		)
+
+		print(world:get(characterId, Components.Transform).cframe)
+		characterAdded:Fire(player, characterId)
 	end
 end
 
 return {
-	system = playerEntitySystem,
+	system = playerSpawner,
 	events = {
 		characterAdded = characterAdded,
 	},

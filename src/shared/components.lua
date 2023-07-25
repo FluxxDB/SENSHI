@@ -3,14 +3,17 @@ local Matter = require(ReplicatedStorage.Packages.Matter)
 
 local COMPONENTS = {
 	"DebugLabel",
-	"Resource",
+	"Player",
+
 	"Health",
 	"Effect",
 	"Target",
+
 	"Model",
 	"Transform",
 
-	"LOD",
+	"Resource",
+	"ChunkRef",
 }
 
 local components = {}

@@ -5,11 +5,15 @@ local Signal = require(Packages.Signal)
 local Components = require(ReplicatedStorage.Shared.components)
 
 local useThrottle = Matter.useThrottle
+
+local RESOURCE_RESPAWN_TIME = 60 * 30
 local characterAdded = Signal.new()
 
 local function resourceSpawners(world)
-	if useThrottle(15) then
-		for id, resource, transform, model in world:query(Components.Resource, Components.Transform, Components.Model) do
+	for id, resource, transform, model in world:query(Components.Resource, Components.Transform, Components.Model) do
+		if resource.capacity < resource.avalible then
+		end
+		if useThrottle(RESOURCE_RESPAWN_TIME, id) then
 			print(id, resource, transform, model)
 		end
 	end
