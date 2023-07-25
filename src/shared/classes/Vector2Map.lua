@@ -16,10 +16,10 @@ function Vector2Map:_debugDrawVoxel(voxelKey: Vector2)
 	box.Anchored = true
 	box.CanCollide = false
 	box.Transparency = 1
-	box.Size = Vector3.new(self._voxelSize, 0, self._voxelSize)
+	box.Size = Vector3.new(self._voxelSize, 2048, self._voxelSize)
 	box.Position = Vector3.new(voxelKey.X, 0, voxelKey.Y) * self._voxelSize
-		+ Vector3.new(self._voxelSize / 2, 0, self._voxelSize / 2)
-	box.Parent = workspace
+		+ Vector3.new(self._voxelSize / 2, 1024, self._voxelSize / 2)
+	box.Parent = workspace:FindFirstChildOfClass("Terrain")
 
 	local selection = Instance.new("SelectionBox")
 	selection.Color3 = Color3.new(0, 0, 1)
@@ -29,14 +29,63 @@ function Vector2Map:_debugDrawVoxel(voxelKey: Vector2)
 	task.delay(1 / 30, box.Destroy, box)
 end
 
-function Vector2Map:AddObject(position: Vector2, object: any)
-	local className = object.ClassName
+function Vector2Map:AddEntity(position: Vector2, object: any)
+	local voxelSize = self._voxelSize
+	local voxelKey = Vector2.new(math.floor(position.X / voxelSize), math.floor(position.Y / voxelSize))
 
+	local voxel = self._voxels[voxelKey]
+	if voxel == nil then
+		self._voxels[voxelKey] = {
+			["Entity"] = { object },
+		}
+	elseif voxel["Entity"] == nil then
+		voxel["Entity"] = { object }
+	else
+		table.insert(voxel["Entity"], object)
+	end
+
+	return voxelKey
+end
+
+function Vector2Map:RemoveEntity(voxelKey: Vector2, object: any)
+	local voxel = self._voxels[voxelKey]
+
+	if voxel == nil then
+		return
+	end
+
+	if voxel["Entity"] == nil then
+		return
+	end
+
+	local classBucket = voxel["Entity"]
+	for index, storedObject in ipairs(classBucket) do
+		if storedObject == object then
+			local n = #classBucket
+			classBucket[index] = classBucket[n]
+			classBucket[n] = nil
+			break
+		end
+	end
+
+	-- Remove empty class bucket
+	if #classBucket == 0 then
+		voxel["Entity"] = nil :: any
+
+		-- Remove empty voxel
+		if next(voxel) == nil then
+			self._voxels[voxelKey] = nil
+		end
+	end
+end
+
+function Vector2Map:AddObject(position: Vector2, object: any)
 	local voxelSize = self._voxelSize
 	local voxelKey = Vector2.new(math.floor(position.X / voxelSize), math.floor(position.Y / voxelSize))
 
 	local voxel = self._voxels[voxelKey]
 
+	local className = object.ClassName
 	if voxel == nil then
 		self._voxels[voxelKey] = {
 			[className] = { object },
@@ -86,6 +135,10 @@ end
 
 function Vector2Map:GetVoxel(voxelKey: Vector2)
 	return self._voxels[voxelKey]
+end
+
+function Vector2Map:ClearVoxel(voxelKey: Vector2)
+	self._voxels[voxelKey] = {}
 end
 
 function Vector2Map:ForEachObjectInRadius(point: Vector2, radius: number, callback: (string, any) -> ())

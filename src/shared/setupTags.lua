@@ -1,39 +1,25 @@
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Components = require(ReplicatedStorage.Shared.components)
 
-local boundTags = {
-	River = Components.Resource,
-	Resource = Components.Resource,
-	Doors = Components.Resource,
-	-- TODO: Collection Service tags handler
-}
+local Shared = ReplicatedStorage.Shared
+
+local boundTags = {}
+
+for _, module in Shared.tags:GetChildren() do
+	table.insert(boundTags, require(module))
+end
 
 local function setupTags(world)
-	local function spawnBound(instance, component)
-		local id = world:spawn(
-			component(instance:GetAttributes()),
-			Components.Model({
-				model = instance,
-			}),
-			Components.Transform({
-				cframe = if instance:IsA("Model") then instance.PrimaryPart.CFrame else instance.CFrame,
-			})
-		)
-
-		instance:SetAttribute("serverEntityId", id)
-	end
-
-	for tagName, component in pairs(boundTags) do
-		for _, instance in ipairs(CollectionService:GetTagged(tagName)) do
-			spawnBound(instance, component)
+	for _, component in boundTags do
+		for _, instance in CollectionService:GetTagged(component.tag) do
+			component:instanceAdded(world, instance)
 		end
 
-		CollectionService:GetInstanceAddedSignal(tagName):Connect(function(instance)
-			spawnBound(instance, component)
+		CollectionService:GetInstanceAddedSignal(component.tag):Connect(function(instance)
+			component:instanceAdded(world, instance)
 		end)
 
-		CollectionService:GetInstanceRemovedSignal(tagName):Connect(function(instance)
+		CollectionService:GetInstanceRemovedSignal(component.tag):Connect(function(instance)
 			local id = instance:GetAttribute("serverEntityId")
 			if id then
 				world:despawn(id)
