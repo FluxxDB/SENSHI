@@ -1,6 +1,8 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Matter = require(ReplicatedStorage.Packages.Matter)
 local Components = require(ReplicatedStorage.Shared.components)
 
+local constants = require(ReplicatedStorage.Shared.constants)
 local playerEntity = require(script.Parent["playerSpawner"])
 local characterAdded = playerEntity.events.characterAdded
 
@@ -10,9 +12,8 @@ local RemoteEvent = Instance.new("RemoteEvent")
 RemoteEvent.Name = "MatterRemote"
 RemoteEvent.Parent = ReplicatedStorage
 
-local REPLICATED_COMPONENTS = {
-	-- ...
-}
+local REPLICATION_RADIUS = constants.REPLICATION_RADIUS
+local REPLICATED_COMPONENTS = constants.REPLICATED_COMPONENTS
 
 local replicatedComponents = {}
 
@@ -20,84 +21,67 @@ for _, name in REPLICATED_COMPONENTS do
 	replicatedComponents[Components[name]] = true
 end
 
-local function replication(world)
+local function replication(world: Matter.World)
 	for _, player, characterId in useEvent(characterAdded, characterAdded.Connect) do
 		if world:contains(characterId) == false then
 			continue
 		end
-		-- local payload = {}
 
-		-- local characterTransform = world:get(characterId, Components.Transform)
-		-- for entityId, entityData in world do
-		-- 	local transform = entityData[Components.Transform]
-		-- 	if transform == nil then
-		-- 		continue
-		-- 	end
+		local payload = {}
+		local playerChunkRef = world:get(characterId, Components.ChunkRef)
+		for entityId, entityData in world do
+			local entityChunkRef = entityData[Components.ChunkRef]
+			if entityChunkRef == nil then
+				continue
+			end
 
-		-- 	-- should be in a different system...
-		-- 	local distance = (
-		-- 		(transform.cFrame.Position * Vector3.new(1, 0, 1))
-		-- 		- characterTransform.cFrame.Position * Vector3.new(1, 0, 1)
-		-- 	).Magnitude
-		-- 	local entityLOD = entityData[Components.LOD] or Components.LOD({ players = {} })
+			local distance = (playerChunkRef.voxelKey - entityChunkRef.voxelKey).Magnitude
+			if distance > REPLICATION_RADIUS then
+				continue
+			end
 
-		-- 	local playerLOD
-		-- 	if distance <= 8192 then
-		-- 		playerLOD = 1
-		-- 	elseif distance > 8192 and distance <= 16384 then
-		-- 		playerLOD = 2
-		-- 	elseif distance > 16384 and distance <= 32768 then
-		-- 		playerLOD = 3
-		-- 	end
+			local entityPayload = {}
 
-		-- 	local playerList = {
-		-- 		[player] = playerLOD,
-		-- 	}
+			for component, componentData in entityData do
+				if replicatedComponents[component] then
+					entityPayload[tostring(component)] = { data = componentData }
+				end
+			end
 
-		-- 	for player, level in entityLOD.players do
-		-- 		playerList[player] = level
-		-- 	end
+			payload[tostring(entityId)] = entityPayload
+		end
 
-		-- 	world:insert(
-		-- 		entityId,
-		-- 		Components.LOD:patch({
-		-- 			players = playerList,
-		-- 		})
-		-- 	)
-
-		-- 	local entityPayload = {}
-		-- 	payload[tostring(entityId)] = entityPayload
-
-		-- 	for component, componentData in entityData do
-		-- 		if replicatedComponents[component] then
-		-- 			entityPayload[tostring(component)] = { data = componentData }
-		-- 		end
-		-- 	end
-		-- end
-
-		-- print("Sending initial payload to", player, payload)
-		-- RemoteEvent:FireClient(player, payload)
+		RemoteEvent:FireClient(player, payload)
 	end
-
-	local changes = {}
 
 	for component in replicatedComponents do
 		for entityId, record in world:queryChanged(component) do
-			local key = tostring(entityId)
-			local name = tostring(component)
+			for id, player, chunkRef in world:query(Components.Player, Components.ChunkRef) do
+				local changes = {}
 
-			if changes[key] == nil then
-				changes[key] = {}
-			end
+				local key = tostring(entityId)
+				local name = tostring(component)
 
-			if world:contains(entityId) then
-				changes[key][name] = { data = record.new }
+				if changes[key] == nil then
+					changes[key] = {}
+				end
+
+				if world:contains(entityId) then
+					local entityChunkRef = world:get(entityId, chunkRef)
+					local distance = (chunkRef.voxelKey - entityChunkRef.voxelKey).Magnitude
+
+					if distance > REPLICATION_RADIUS then
+						continue
+					end
+
+					changes[key][name] = { data = record.new }
+				end
+
+				if next(changes) then
+					RemoteEvent:FireClient(player.instance, changes)
+				end
 			end
 		end
-	end
-
-	if next(changes) then
-		RemoteEvent:FireAllClients(changes)
 	end
 end
 

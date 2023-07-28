@@ -1,10 +1,14 @@
 --!strict
 
+local Signal = require(game:GetService("ReplicatedStorage").Packages.Signal)
+
 local VectorMap2D = {}
 VectorMap2D.__index = VectorMap2D
 
 function VectorMap2D.new(voxelSize: number?)
 	return setmetatable({
+		voxelAdded = Signal.new() :: Signal.Signal<Vector3, { any }>,
+		voxelRemoving = Signal.new() :: Signal.Signal<Vector3, { any }>,
 		_voxelSize = voxelSize or 50,
 		_voxels = {},
 	}, VectorMap2D)
@@ -17,7 +21,7 @@ function VectorMap2D:_debugDrawVoxel(voxelKey: Vector3)
 	box.CanCollide = false
 	box.Transparency = 1
 	box.Size = Vector3.new(self._voxelSize, 2048, self._voxelSize)
-	box.Position = Vector3.new(voxelKey.X, 0, voxelKey.Y) * self._voxelSize
+	box.Position = Vector3.new(voxelKey.X, 0, voxelKey.Z) * self._voxelSize
 		+ Vector3.new(self._voxelSize / 2, 1024, self._voxelSize / 2)
 	box.Parent = workspace:FindFirstChildOfClass("Terrain")
 
@@ -29,36 +33,37 @@ function VectorMap2D:_debugDrawVoxel(voxelKey: Vector3)
 	task.delay(1 / 30, box.Destroy, box)
 end
 
-function VectorMap2D:AddEntity(entityType: string, position: Vector3, object: any)
+function VectorMap2D:AddTo(position: Vector3, typeOfData: string, object: any)
 	local voxelSize = self._voxelSize
 	local voxelKey = Vector3.new(math.floor(position.X / voxelSize), 0, math.floor(position.Z / voxelSize))
 
 	local voxel = self._voxels[voxelKey]
 	if voxel == nil then
 		self._voxels[voxelKey] = {
-			[entityType] = { object },
+			[typeOfData] = { object },
 		}
-	elseif voxel[entityType] == nil then
-		voxel[entityType] = { object }
+		self.voxelAdded:Fire(voxelKey, self._voxels[voxelKey])
+	elseif voxel[typeOfData] == nil then
+		voxel[typeOfData] = { object }
 	else
-		table.insert(voxel[entityType], object)
+		table.insert(voxel[typeOfData], object)
 	end
 
 	return voxelKey
 end
 
-function VectorMap2D:RemoveEntity(entityType: string, voxelKey: Vector3, object: any)
-	local voxel = self._voxels[voxelKey]
+function VectorMap2D:RemoveFrom(position: Vector3, typeOfData: string, object: any)
+	local voxel = self._voxels[position]
 
 	if voxel == nil then
 		return
 	end
 
-	if voxel[entityType] == nil then
+	if voxel[typeOfData] == nil then
 		return
 	end
 
-	local classBucket = voxel[entityType]
+	local classBucket = voxel[typeOfData]
 	for index, storedObject in ipairs(classBucket) do
 		if storedObject == object then
 			local n = #classBucket
@@ -70,70 +75,33 @@ function VectorMap2D:RemoveEntity(entityType: string, voxelKey: Vector3, object:
 
 	-- Remove empty class bucket
 	if #classBucket == 0 then
-		voxel[entityType] = nil :: any
+		voxel[typeOfData] = nil :: any
 
 		-- Remove empty voxel
 		if next(voxel) == nil then
-			self._voxels[voxelKey] = nil
+			self.voxelRemoving:Fire(position, self._voxels[position])
+			self._voxels[position] = nil
 		end
 	end
 end
 
-function VectorMap2D:AddObject(position: Vector3, object: any)
-	local voxelSize = self._voxelSize
-	local voxelKey = Vector3.new(math.floor(position.X / voxelSize), 0, math.floor(position.Z / voxelSize))
-
-	local voxel = self._voxels[voxelKey]
-
-	local className = object.ClassName
-	if voxel == nil then
-		self._voxels[voxelKey] = {
-			[className] = { object },
-		}
-	elseif voxel[className] == nil then
-		voxel[className] = { object }
-	else
-		table.insert(voxel[className], object)
-	end
-
-	return voxelKey
+function VectorMap2D:AddEntity(entityType: string, position: Vector3, entity: any)
+	return self:AddTo(position, entityType, entity)
 end
 
-function VectorMap2D:RemoveObject(voxelKey: Vector3, object: any)
-	local voxel = self._voxels[voxelKey]
-
-	if voxel == nil then
-		return
-	end
-
-	local className = object.ClassName
-	if voxel[className] == nil then
-		return
-	end
-
-	local classBucket = voxel[className]
-	for index, storedObject in ipairs(classBucket) do
-		if storedObject == object then
-			-- Swap remove to avoid shifting
-			local n = #classBucket
-			classBucket[index] = classBucket[n]
-			classBucket[n] = nil
-			break
-		end
-	end
-
-	-- Remove empty class bucket
-	if #classBucket == 0 then
-		voxel[className] = nil
-
-		-- Remove empty voxel
-		if next(voxel) == nil then
-			self._voxels[voxelKey] = nil
-		end
-	end
+function VectorMap2D:RemoveEntity(entityType: string, position: Vector3, entity: any)
+	return self:RemoveFrom(position, entityType, entity)
 end
 
-function VectorMap2D:GetVoxels(voxelKey: Vector3)
+function VectorMap2D:AddInstance(position: Vector3, instance: Instance)
+	return self:AddTo(position, instance.ClassName, instance)
+end
+
+function VectorMap2D:RemoveObject(position: Vector3, instance: Instance)
+	return self:RemoveFrom(position, instance.ClassName, instance)
+end
+
+function VectorMap2D:GetVoxels()
 	return self._voxels
 end
 
@@ -142,7 +110,8 @@ function VectorMap2D:GetVoxel(voxelKey: Vector3)
 end
 
 function VectorMap2D:ClearVoxel(voxelKey: Vector3)
-	self._voxels[voxelKey] = {}
+	self.voxelRemoving:Fire(voxelKey, self._voxels[voxelKey])
+	self._voxels[voxelKey] = nil
 end
 
 function VectorMap2D:ForEachObjectInRadius(voxelKey: Vector3, voxelRadius: number, callback: (string, any) -> ())

@@ -20,18 +20,21 @@ local function playerSpawner(world)
 		local characterId = world:spawn(
 			Components.Player({ instance = player }),
 			creature:createComponents({
-				Model = {},
-				Health = {},
+				Model = {
+					modelId = 0,
+				},
+				Health = {
+					hitPoints = 0,
+					maxHitPoints = 0,
+				},
 				Transform = {
-					-- Testing Random Spawn
 					cframe = CFrame.new(0, 0, 0),
 					-- cframe = CFrame.new(random:NextNumber(-50, 50) * 2048, 0, random:NextNumber(-50, 50) * 2048),
 				},
 			})
 		)
 
-		print(world:get(characterId, Components.Transform).cframe)
-		characterAdded:Fire(player, characterId)
+		task.defer(characterAdded.Fire, characterAdded, player, characterId)
 	end
 end
 

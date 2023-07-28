@@ -13,14 +13,17 @@ function object:instanceAdded(world: Matter.World, instance: BasePart)
 		return
 	end
 
-	local id = world:spawn(
-		self.component(instance:GetAttributes()),
+	local attributes = instance:GetAttributes()
+	attributes.resourceId = attributes.resourceId or -1
+	attributes.capacity = attributes.capacity or 0
+	attributes.spawnCount = 0
+
+	world:spawn(
+		self.component(attributes),
 		Components.Transform({
 			cframe = instance.CFrame,
 		})
 	)
-
-	instance:SetAttribute("serverEntityId", id)
 end
 
 return object
