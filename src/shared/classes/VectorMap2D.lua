@@ -85,12 +85,12 @@ function VectorMap2D:RemoveFrom(position: Vector3, typeOfData: string, object: a
 	end
 end
 
-function VectorMap2D:AddEntity(entityType: string, position: Vector3, entity: any)
-	return self:AddTo(position, entityType, entity)
+function VectorMap2D:AddEntity(position: Vector3, entity: any)
+	return self:AddTo(position, "Entities", entity)
 end
 
-function VectorMap2D:RemoveEntity(entityType: string, position: Vector3, entity: any)
-	return self:RemoveFrom(position, entityType, entity)
+function VectorMap2D:RemoveEntity(position: Vector3, entity: any)
+	return self:RemoveFrom(position, "Entities", entity)
 end
 
 function VectorMap2D:AddInstance(position: Vector3, instance: Instance)
@@ -126,6 +126,10 @@ function VectorMap2D:ForEachObjectInRadius(voxelKey: Vector3, voxelRadius: numbe
 				local distanceSquared = (voxelPos - voxelKey).Magnitude
 				if distanceSquared <= voxelRadius then
 					for entityType, objects in pairs(voxel) do
+						if type(objects) ~= "table" then
+							continue
+						end
+
 						for _, object in ipairs(objects) do
 							callback(entityType, object)
 						end

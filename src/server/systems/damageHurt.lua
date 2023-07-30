@@ -8,9 +8,16 @@ local Components = require(ReplicatedStorage.Shared.components)
 local Health = Components.Health
 local Damage = Components.Damage
 
-function displaceHeight(world: Matter.World)
+--[[
+--]]
+
+function damageHurts(world: Matter.World)
 	for id, health, damage in world:query(Health, Damage) do
+		health:patch({
+			hitPoints = health.hitPoints - damage.damage,
+		})
+		world:remove(id, Damage)
 	end
 end
 
-return displaceHeight
+return damageHurts

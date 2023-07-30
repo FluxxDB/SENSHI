@@ -5,17 +5,17 @@ local constants = {}
 
 constants.VOXEL_SIZE = 2048
 constants.CHUNKS = VectorMap2D.new(constants.VOXEL_SIZE)
+constants.CHUNK_SPAWN_DISTANCE = 4
 
-constants.REPLICATION_RADIUS = 4 -- 4x4 Chunks
+constants.REPLICATION_RADIUS = 4
 constants.REPLICATED_COMPONENTS = {
-	"Player",
+	"PlayerRef",
 	"Health",
 
 	"Effect",
-	"Target",
-
 	"Model",
 	"Transform",
+	"GamePlacement",
 
 	"Resource",
 }

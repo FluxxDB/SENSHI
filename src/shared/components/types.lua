@@ -1,15 +1,15 @@
 --!strict
 
-export type Player = {
+export type PlayerRef = {
 	instance: Player,
 }
 
 export type Health = {
-	hitPoints: number,
-	maxHitPoints: number,
-	block: number,
-	evade: number,
-	armor: { [string]: number },
+	hitPoints: number?,
+	maxHitPoints: number?,
+	block: number?,
+	evade: number?,
+	armor: { [string]: number }?,
 }
 
 export type Damage = {
@@ -48,12 +48,20 @@ export type GamePlacement = {
 	orientation: number,
 }
 
+export type Chunk = {
+	priority: number,
+}
+
 export type ChunkRef = {
 	voxelKey: Vector3,
 }
 
-export type ChunkLOD = {
-	level: number,
+export type HipHeight = {
+	height: number,
+}
+
+export type TravelHeight = {
+	height: number,
 }
 
 return {}

@@ -1,24 +1,26 @@
+--!strict
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Packages = ReplicatedStorage.Packages
 local Shared = ReplicatedStorage.Shared
 
-local Matter = require(Packages.Matter)
+local Matter = require(ReplicatedStorage.Packages.Matter)
+
 local Components = require(Shared.components)
-local chunkManager = require(script.Parent.chunkManager)
 local constants = require(Shared.constants)
 
-local ChunkLOD = Components.ChunkLOD
+local PlayerRef = Components.PlayerRef
+local Chunk = Components.Chunk
 local ChunkRef = Components.ChunkRef
-local Player = Components.Player
 
 local useThrottle = Matter.useThrottle
+local voxelSize = constants.VOXEL_SIZE
 local serverChunks = constants.CHUNKS
 
-local function chunkLOD(world: Matter.World)
+function playerUpdatesChunkPriority(world: Matter.World)
 	if useThrottle(1) then
 		local players = {}
 
-		for id, player, chunkRef in world:query(Player, ChunkRef) do
+		for id, playerRef, chunkRef in world:query(PlayerRef, ChunkRef) do
 			table.insert(players, chunkRef.voxelKey)
 		end
 
@@ -27,8 +29,11 @@ local function chunkLOD(world: Matter.World)
 		end
 
 		for position, voxel in serverChunks:GetVoxels() do
-			local closestDistance = math.huge
+			if voxel.entityId == nil then
+				continue
+			end
 
+			local closestDistance = math.huge
 			for _, playerVoxelKey in players do
 				local playerMagnitude = (position - playerVoxelKey).Magnitude
 				if playerMagnitude >= closestDistance then
@@ -38,28 +43,26 @@ local function chunkLOD(world: Matter.World)
 				closestDistance = playerMagnitude
 			end
 
-			local chunkLOD
-			if closestDistance <= 8192 / 2048 then
-				chunkLOD = 1
-			elseif closestDistance > 8192 / 2048 and closestDistance <= 16384 / 2048 then
-				chunkLOD = 2
-			elseif closestDistance > 16384 / 2048 and closestDistance <= 32768 / 2048 then
-				chunkLOD = 3
+			local chunkPriority = -1
+			if closestDistance <= 8192 / voxelSize then
+				chunkPriority = 1
+			elseif closestDistance > 8192 / voxelSize and closestDistance <= 16384 / voxelSize then
+				chunkPriority = 2
+			elseif closestDistance > 16384 / voxelSize and closestDistance <= 65536 / voxelSize then
+				chunkPriority = 3
 			else
 				serverChunks:ClearVoxel(position)
 			end
 
+			voxel.priority = chunkPriority
 			world:insert(
 				voxel.entityId,
-				ChunkLOD({
-					level = chunkLOD,
+				Chunk({
+					priority = chunkPriority,
 				})
 			)
 		end
 	end
 end
 
-return {
-	system = chunkLOD,
-	after = { chunkManager },
-}
+return playerUpdatesChunkPriority

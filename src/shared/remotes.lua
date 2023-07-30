@@ -3,8 +3,7 @@ local Packages = ReplicatedStorage.Packages
 
 local Net = require(Packages.Net)
 
-return  Net.CreateDefinitions({
-	ReplicatedAction = Net.Definitions.ServerToClientEvent(),
+return Net.CreateDefinitions({
 	RequestData = Net.Definitions.ClientToServerEvent({
 		Net.Middleware.RateLimit({
 			MaxRequestsPerMinute = 1,
@@ -12,12 +11,16 @@ return  Net.CreateDefinitions({
 	}),
 
 	Character = Net.Definitions.Namespace({
-		Spawn = Net.Definitions.ClientToServerEvent(),
+		Spawn = Net.Definitions.ClientToServerEvent({
+			Net.Middleware.RateLimit({
+				MaxRequestsPerMinute = 1,
+			}),
+		}),
 		Move = Net.Definitions.ClientToServerEvent(),
-		
-		CreateCharacter = Net.Definitions.ClientToServerEvent(),
-		UpdateCharacter = Net.Definitions.ClientToServerEvent(),
-		SelectCharacter = Net.Definitions.ClientToServerEvent(),
-		DeleteCharacter = Net.Definitions.ClientToServerEvent(),
+
+		Create = Net.Definitions.ClientToServerEvent(),
+		Update = Net.Definitions.ClientToServerEvent(),
+		Select = Net.Definitions.ClientToServerEvent(),
+		Delete = Net.Definitions.ClientToServerEvent(),
 	}),
 })

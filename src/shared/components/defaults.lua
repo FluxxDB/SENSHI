@@ -33,16 +33,20 @@ defaults.GamePlacement = {
 	orientation = 0,
 } :: types.GamePlacement
 
-defaults.Player = empty :: types.Player
+defaults.PlayerRef = empty :: types.PlayerRef
 
 defaults.Damage = empty :: types.Damage
 
-defaults.Model = empty :: types.Model
+defaults.Model = {} :: types.Model
 
 defaults.Resource = empty :: types.Resource
 
 defaults.ChunkRef = empty :: types.ChunkRef
 
-defaults.ChunkLOD = empty :: types.ChunkLOD
+defaults.Chunk = empty :: types.Chunk
+
+defaults.HipHeight = empty :: types.HipHeight
+
+defaults.TravelHeight = empty :: types.TravelHeight
 
 return defaults

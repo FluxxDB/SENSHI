@@ -13,6 +13,7 @@ function object:instanceAdded(world: Matter.World, instance: BasePart)
 		return
 	end
 
+	local position = instance.Position
 	local attributes = instance:GetAttributes()
 	attributes.resourceId = attributes.resourceId or -1
 	attributes.capacity = attributes.capacity or 0
@@ -20,8 +21,9 @@ function object:instanceAdded(world: Matter.World, instance: BasePart)
 
 	world:spawn(
 		self.component(attributes),
-		Components.Transform({
-			cframe = instance.CFrame,
+		Components.GamePlacement({
+			position = Vector2.new(position.X, position.Z),
+			orientation = 0,
 		})
 	)
 end
