@@ -5,7 +5,7 @@ local RemoteEvent = ReplicatedStorage:WaitForChild("MatterRemote")
 local function setupReplication(world, state)
 	local function debugPrint(...)
 		if state.debugEnabled then
-			print("Replication>", ...)
+			-- print("Replication>", ...)
 		end
 	end
 

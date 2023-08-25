@@ -1,5 +1,9 @@
 --!strict
 
+export type LocalPlayer = {
+	instance: Player,
+}
+
 export type PlayerRef = {
 	instance: Player,
 }
@@ -27,10 +31,10 @@ export type Model = {
 }
 
 export type Movement = {
-	maxSpeed: number,
-	maxAngularSpeed: number,
-	velocity: Vector2,
-	angularVelocity: number,
+	maxSpeed: number?,
+	maxAngularSpeed: number?,
+	velocity: Vector3?,
+	angularVelocity: number?,
 }
 
 export type Effect = {
@@ -44,7 +48,7 @@ export type Resource = {
 }
 
 export type GamePlacement = {
-	position: Vector2,
+	position: Vector3,
 	orientation: number,
 }
 
@@ -62,6 +66,10 @@ export type HipHeight = {
 
 export type TravelHeight = {
 	height: number,
+}
+
+export type Spring = {
+	spring: any,
 }
 
 return {}

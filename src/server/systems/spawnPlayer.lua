@@ -1,7 +1,7 @@
 --!strict
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Workspace = game:GetService("Workspace")
+local Players = game:GetService("Players")
 
 local Packages = ReplicatedStorage.Packages
 local Shared = ReplicatedStorage.Shared
@@ -16,16 +16,28 @@ local Components = require(Shared.components)
 local PlayerRef = Components.PlayerRef
 local Model = Components.Model
 local Health = Components.Health
+local Movement = Components.Movement
 local GamePlacement = Components.GamePlacement
 
 local remotes = require(Shared.remotes)
+
 local characterRemotes = remotes.Server:GetNamespace("Character")
 local spawnEvent = characterRemotes:Get("Spawn") :: { Connect: any }
 
-local function spawnPlayer(world: Matter.World)
-	local random = Random.new()
+local random = Random.new()
+local position = Vector3.new(25 * 2048, 150, 25 * 2048)
+print(position)
+
+function spawnPlayer(world: Matter.World)
+	for _, player in useEvent(Players, "PlayerRemoving") do
+		for id, playerRef in world:query(PlayerRef) do
+			if playerRef.instance == player or playerRef.instance == nil then
+				world:despawn(id)
+			end
+		end
+	end
+
 	for _, player in useEvent(spawnEvent.Connect, spawnEvent) do
-		print("hi")
 		local playerId
 		for id, playerRef in world:query(PlayerRef) do
 			if playerRef.instance == player then
@@ -38,6 +50,8 @@ local function spawnPlayer(world: Matter.World)
 			break
 		end
 
+		-- local position = Vector3.new(0, 150, 0)
+
 		local characterId = world:spawn(
 			PlayerRef({
 				instance = player,
@@ -49,14 +63,14 @@ local function spawnPlayer(world: Matter.World)
 				hitPoints = 5,
 				maxHitPoints = 10,
 			}),
+			Movement({}),
 			GamePlacement({
-				position = Vector2.new(random:NextNumber(-50, 50) * 2048, random:NextNumber(-50, 50) * 2048),
-				-- position = Vector2.new(0, 0),
+				position = position,
 				orientation = 0,
 			})
 		)
 
-		task.defer(characterAdded.Fire, characterAdded, player, characterId)
+		task.delay(5 / 30, characterAdded.Fire, characterAdded, player, characterId)
 	end
 end
 

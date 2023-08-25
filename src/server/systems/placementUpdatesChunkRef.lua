@@ -8,10 +8,13 @@ local Matter = require(ReplicatedStorage.Packages.Matter)
 local Components = require(ReplicatedStorage.Shared.components)
 local constants = require(Shared.constants)
 
+local playerUpdatesPlacement = require(script.Parent.playerUpdatesPlacement)
+local movementUpdatesPlacement = require(script.Parent.movementUpdatesPlacement)
 local GamePlacement = Components.GamePlacement
 local ChunkRef = Components.ChunkRef
 
 local serverChunks = constants.CHUNKS
+local voxelSize = constants.VOXEL_SIZE
 
 function placementUpdatesChunkRef(world: Matter.World)
 	for id, record in world:queryChanged(GamePlacement) do
@@ -19,11 +22,16 @@ function placementUpdatesChunkRef(world: Matter.World)
 			continue
 		end
 
-		local currentVoxel = Vector3.new(record.new.position.X, 0, record.new.position.Y)
+		local currentVoxel = Vector3.new(
+			math.clamp(math.floor(record.new.position.X / voxelSize), -50, 50),
+			0,
+			math.clamp(math.floor(record.new.position.Z / voxelSize), -50, 50)
+		)
 
 		local chunkRef = world:get(id, ChunkRef)
 		if chunkRef == nil then
-			serverChunks:AddEntity(currentVoxel, id)
+			serverChunks:AddEntity(record.new.position, id)
+			print(record.new.position, id)
 
 			world:insert(
 				id,
@@ -36,7 +44,9 @@ function placementUpdatesChunkRef(world: Matter.World)
 
 		if currentVoxel ~= chunkRef.voxelKey then
 			serverChunks:RemoveEntity(chunkRef.voxelKey, id)
-			serverChunks:AddEntity(currentVoxel, id)
+			serverChunks:AddEntity(record.new.position, id)
+			print(record.new.position, id)
+
 			world:insert(
 				id,
 				ChunkRef({
@@ -47,4 +57,7 @@ function placementUpdatesChunkRef(world: Matter.World)
 	end
 end
 
-return placementUpdatesChunkRef
+return {
+	system = placementUpdatesChunkRef,
+	after = { playerUpdatesPlacement, movementUpdatesPlacement },
+}

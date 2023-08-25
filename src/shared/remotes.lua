@@ -16,7 +16,11 @@ return Net.CreateDefinitions({
 				MaxRequestsPerMinute = 1,
 			}),
 		}),
-		Move = Net.Definitions.ClientToServerEvent(),
+		Move = Net.Definitions.ClientToServerEvent({
+			Net.Middleware.RateLimit({
+				MaxRequestsPerMinute = 2000,
+			}),
+		}),
 
 		Create = Net.Definitions.ClientToServerEvent(),
 		Update = Net.Definitions.ClientToServerEvent(),

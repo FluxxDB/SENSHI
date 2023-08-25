@@ -8,6 +8,7 @@ local Matter = require(ReplicatedStorage.Packages.Matter)
 local Components = require(Shared.components)
 local constants = require(Shared.constants)
 
+local placementUpdatesChunkRef = require(script.Parent.placementUpdatesChunkRef)
 local PlayerRef = Components.PlayerRef
 local Chunk = Components.Chunk
 local ChunkRef = Components.ChunkRef
@@ -36,6 +37,7 @@ function playerUpdatesChunkPriority(world: Matter.World)
 			local closestDistance = math.huge
 			for _, playerVoxelKey in players do
 				local playerMagnitude = (position - playerVoxelKey).Magnitude
+
 				if playerMagnitude >= closestDistance then
 					continue
 				end
@@ -48,21 +50,29 @@ function playerUpdatesChunkPriority(world: Matter.World)
 				chunkPriority = 1
 			elseif closestDistance > 8192 / voxelSize and closestDistance <= 16384 / voxelSize then
 				chunkPriority = 2
-			elseif closestDistance > 16384 / voxelSize and closestDistance <= 65536 / voxelSize then
+			elseif closestDistance > 16384 / voxelSize and closestDistance <= 32768 / voxelSize then
 				chunkPriority = 3
+			elseif closestDistance > 32768 / voxelSize and closestDistance <= 65536 / voxelSize then
+				chunkPriority = 4
 			else
 				serverChunks:ClearVoxel(position)
+				return
 			end
 
-			voxel.priority = chunkPriority
-			world:insert(
-				voxel.entityId,
-				Chunk({
-					priority = chunkPriority,
-				})
-			)
+			if world:contains(voxel.entityId) then
+				voxel.priority = chunkPriority
+				world:insert(
+					voxel.entityId,
+					Chunk({
+						priority = chunkPriority,
+					})
+				)
+			end
 		end
 	end
 end
 
-return playerUpdatesChunkPriority
+return {
+	system = playerUpdatesChunkPriority,
+	after = { placementUpdatesChunkRef },
+}

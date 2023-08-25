@@ -7,7 +7,7 @@ constants.VOXEL_SIZE = 2048
 constants.CHUNKS = VectorMap2D.new(constants.VOXEL_SIZE)
 constants.CHUNK_SPAWN_DISTANCE = 4
 
-constants.REPLICATION_RADIUS = 4
+constants.REPLICATION_RADIUS = 5
 constants.REPLICATED_COMPONENTS = {
 	"PlayerRef",
 	"Health",
@@ -18,6 +18,10 @@ constants.REPLICATED_COMPONENTS = {
 	"GamePlacement",
 
 	"Resource",
+	"Movement",
+	"GamePlacement",
+	"Chunk",
+	"ChunkRef",
 }
 
 return constants

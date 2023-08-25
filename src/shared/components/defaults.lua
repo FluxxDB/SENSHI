@@ -24,14 +24,16 @@ defaults.Transform = {
 defaults.Movement = {
 	maxSpeed = 2.6,
 	maxAngularSpeed = math.pi,
-	velocity = Vector2.zero,
+	velocity = Vector3.zero,
 	angularVelocity = 0,
 } :: types.Movement
 
 defaults.GamePlacement = {
-	position = Vector2.zero,
+	position = Vector3.zero,
 	orientation = 0,
 } :: types.GamePlacement
+
+defaults.LocalPlayer = empty :: types.LocalPlayer
 
 defaults.PlayerRef = empty :: types.PlayerRef
 
@@ -48,5 +50,7 @@ defaults.Chunk = empty :: types.Chunk
 defaults.HipHeight = empty :: types.HipHeight
 
 defaults.TravelHeight = empty :: types.TravelHeight
+
+defaults.Spring = empty :: types.Spring
 
 return defaults

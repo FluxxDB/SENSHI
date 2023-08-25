@@ -21,17 +21,24 @@ local REPLICATED_COMPONENTS = constants.REPLICATED_COMPONENTS
 local replicatedComponents = {}
 
 for _, name in REPLICATED_COMPONENTS do
-	replicatedComponents[Components[name]] = true
+	replicatedComponents[Components[name]] = name
 end
 
-local function replication(world: Matter.World)
+function replication(world: Matter.World)
 	for _, player, playerId in useEvent(characterAdded, characterAdded.Connect) do
 		local payload = {}
-
 		local playerEntity = world:_getEntity(playerId)
+
 		local playerChunkRef = playerEntity[Components.ChunkRef]
+		if not playerChunkRef then
+			continue
+		end
 
 		serverChunks:ForEachObjectInRadius(playerChunkRef.voxelKey, constants.REPLICATION_RADIUS, function(_, entityId)
+			if entityId == -1 or world == nil then
+				return
+			end
+
 			-- Shouldn't be calling _getEntity... Too bad!
 			local entityData = world:_getEntity(entityId)
 			if entityData == nil then
@@ -58,6 +65,7 @@ local function replication(world: Matter.World)
 
 			payload[tostring(entityId)] = entityPayload
 		end)
+		print(payload)
 
 		local playerPayload = {}
 
@@ -68,22 +76,28 @@ local function replication(world: Matter.World)
 		end
 
 		payload[tostring(playerId)] = playerPayload
-
+		print(payload)
 		RemoteEvent:FireClient(player, payload)
 	end
 
 	local playerChanges = {}
 
-	for component in replicatedComponents do
-		local name = tostring(component)
+	for component, name in replicatedComponents do
 		for entityId, record in world:queryChanged(component) do
-			local key = tostring(entityId)
+			if record.new == nil then
+				continue
+			end
 
+			if name == tostring(Components.Model) and record.new.instance then
+				continue
+			end
+
+			local key = tostring(entityId)
 			for id, playerRef, chunkRef in world:query(Components.PlayerRef, Components.ChunkRef) do
 				local changes = playerChanges[playerRef.instance]
 				if changes == nil then
-					playerChanges[playerRef.instance] = {}
-					changes = playerChanges[playerRef.instance]
+					changes = {}
+					playerChanges[playerRef.instance] = changes
 				end
 
 				if changes[key] == nil then
@@ -91,13 +105,13 @@ local function replication(world: Matter.World)
 				end
 
 				if world:contains(entityId) then
-					local entityChunkRef = world:get(entityId, chunkRef)
+					local entityChunkRef = world:get(entityId, Components.ChunkRef)
 					if entityChunkRef == nil then
 						continue
 					end
 
 					local distance = (chunkRef.voxelKey - entityChunkRef.voxelKey).Magnitude
-					if distance < REPLICATION_RADIUS then
+					if distance <= REPLICATION_RADIUS then
 						changes[key][name] = { data = record.new }
 					end
 				end
@@ -105,8 +119,8 @@ local function replication(world: Matter.World)
 		end
 	end
 
-	if next(playerChanges) then
-		for player, changes in playerChanges do
+	for player, changes in playerChanges do
+		if next(changes) then
 			RemoteEvent:FireClient(player, changes)
 		end
 	end

@@ -3,6 +3,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Matter = require(ReplicatedStorage.Packages.Matter)
 local Components = require(ReplicatedStorage.Shared.components)
 
+local constants = require(ReplicatedStorage.Shared.constants)
+local voxelSize = constants.VOXEL_SIZE
+
 local object = {
 	tag = "Resource",
 	component = Components.Resource,
@@ -22,7 +25,7 @@ function object:instanceAdded(world: Matter.World, instance: BasePart)
 	world:spawn(
 		self.component(attributes),
 		Components.GamePlacement({
-			position = Vector2.new(position.X, position.Z),
+			position = Vector3.new(math.floor(position.X / voxelSize), 0, math.floor(position.Z / voxelSize)),
 			orientation = 0,
 		})
 	)

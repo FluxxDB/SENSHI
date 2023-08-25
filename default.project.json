@@ -11,7 +11,6 @@
 			"Framework": {
 				"$className": "Folder",
 				"$path": "src/server"
-
 			}
 		},
 		"ServerStorage": {
@@ -31,6 +30,10 @@
 			"$className": "ReplicatedStorage",
 			"types": {
 				"$path": "src/types"
+			},
+			"Client": {
+				"$className": "Folder",
+				"$path": "src/client"
 			},
 			"Shared": {
 				"$className": "Folder",
@@ -62,9 +65,8 @@
 			},
 			"StarterPlayerScripts": {
 				"$className": "StarterPlayerScripts",
-				"Framework": {
-					"$className": "Folder",
-					"$path": "src/client"
+				"runtime": {
+					"$path": "src/runtime.client.lua"
 				}
 			}
 		},

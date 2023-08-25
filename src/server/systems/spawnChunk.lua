@@ -14,30 +14,12 @@ local ChunkRef = Components.ChunkRef
 local useEvent = Matter.useEvent
 local useThrottle = Matter.useThrottle
 local serverChunks = constants.CHUNKS
+local voxelSize = constants.VOXEL_SIZE
+
 local chunkSpawnDistance = constants.CHUNK_SPAWN_DISTANCE
 local voxelAdded, voxelRemoving = serverChunks.voxelAdded, serverChunks.voxelRemoving
 
 function spawnChunk(world: Matter.World)
-	-- Spawn chunks around player
-	for id, _, chunkRef in world:query(PlayerRef, ChunkRef) do
-		if useThrottle(1, id) then
-			local voxelKey = chunkRef.voxelKey
-
-			local chunkX = voxelKey.X
-			local chunkY = voxelKey.Z
-
-			for x = chunkX - chunkSpawnDistance, chunkX + chunkSpawnDistance do
-				for y = chunkY - chunkSpawnDistance, chunkY + chunkSpawnDistance do
-					-- TODO: Find prettier way to do this
-					local position = Vector3.new(x, 0, y)
-					if serverChunks:GetVoxel(position) == nil then
-						serverChunks:AddEntity(position, -1) -- Don't ask me why
-					end
-				end
-			end
-		end
-	end
-
 	-- Check whenever a voxel was added or deleted to assing/remove its according entity
 	for _, position, voxel in useEvent(voxelAdded, voxelAdded.Connect) do
 		local voxelId = world:spawn(
@@ -48,10 +30,15 @@ function spawnChunk(world: Matter.World)
 				voxelKey = position,
 			})
 		)
+
+		serverChunks:AddEntity(position * voxelSize, voxelId)
 		voxel.entityId = voxelId
 	end
 
 	for _, position, voxel in useEvent(voxelRemoving, voxelRemoving.Connect) do
+		-- things might be going bad here
+		-- TODO: Figure out a way to keep simulations spawned in
+		--! This will probably despawn ANYTHING further than 65024 studs
 		if voxel.entityId and world:contains(voxel.entityId) then
 			world:despawn(voxel.entityId)
 			voxel.entityId = nil
@@ -69,9 +56,32 @@ function spawnChunk(world: Matter.World)
 			end
 		end
 	end
+
+	-- Spawn chunks around player
+	for id, _, chunkRef in world:query(PlayerRef, ChunkRef) do
+		if useThrottle(1, id) then
+			local voxelKey = chunkRef.voxelKey
+
+			local chunkX = voxelKey.X
+			local chunkZ = voxelKey.Z
+
+			for x = chunkX - chunkSpawnDistance, chunkX + chunkSpawnDistance do
+				for z = chunkZ - chunkSpawnDistance, chunkZ + chunkSpawnDistance do
+					-- TODO: Find prettier way to do this
+					local position = Vector3.new(x, 0, z)
+					if serverChunks:GetVoxel(position) == nil then
+						serverChunks:AddEntity(position * voxelSize, -1) -- Don't ask me why
+					end
+				end
+			end
+		end
+	end
+
+	-- for position, voxel in serverChunks:GetVoxels() do
+	-- 	serverChunks:_debugDrawVoxel(position)
+	-- end
 end
 
 return {
 	system = spawnChunk,
-	priority = -1,
 }

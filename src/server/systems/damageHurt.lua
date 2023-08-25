@@ -20,4 +20,6 @@ function damageHurts(world: Matter.World)
 	end
 end
 
-return damageHurts
+return {
+	system = damageHurts,
+}

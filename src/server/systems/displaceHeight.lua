@@ -67,4 +67,6 @@ function displaceHeight(world: Matter.World)
 	end
 end
 
-return displaceHeight
+return {
+	system = displaceHeight,
+}

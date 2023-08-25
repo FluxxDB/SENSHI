@@ -3,6 +3,6 @@ local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local Matter = require(ReplicatedStorage.Packages.Matter)
 
-local function ThirdPersonCamera() end
+function ThirdPersonCamera() end
 
 return ThirdPersonCamera
