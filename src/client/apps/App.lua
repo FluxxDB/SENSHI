@@ -7,13 +7,16 @@ local e = React.createElement
 
 local runeSelection = require(script.Parent.runeSelection.selectorFrame)
 local Scale = require(Client.modules.ui.utility.Scale)
+-- local useWorld = require(script.Parent.Parent.modules.ui.hooks.useWorld)
 
 type Props = {}
 
 local App: React.FC<Props> = function(props: Props, _)
+	-- local world = useWorld()
+
 	return e(
 		"ScreenGui",
-		{ IgnoreGuiInset = true },
+		{ IgnoreGuiInset = false },
 		e(
 			runeSelection,
 			{},

@@ -72,4 +72,8 @@ export type Spring = {
 	spring: any,
 }
 
+export type Incantation = {
+	runeCombination: { string },
+}
+
 return {}

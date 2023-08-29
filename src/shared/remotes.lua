@@ -10,6 +10,13 @@ return Net.CreateDefinitions({
 		}),
 	}),
 
+	SpellCast = Net.Definitions.Namespace({
+		Begin = Net.Definitions.ClientToServerEvent(),
+		End = Net.Definitions.ClientToServerEvent(),
+		Cancel = Net.Definitions.ClientToServerEvent(),
+		SelectRune = Net.Definitions.ClientToServerEvent(),
+	}),
+
 	Character = Net.Definitions.Namespace({
 		Spawn = Net.Definitions.ClientToServerEvent({
 			Net.Middleware.RateLimit({

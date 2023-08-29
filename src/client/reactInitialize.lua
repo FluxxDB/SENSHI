@@ -12,8 +12,8 @@ local App = require(Client.apps.App)
 local e = React.createElement
 
 function reactInitialize(world: Matter.World, state)
-	local context = MatterWorldContext(world)
-	print(context)
+	MatterWorldContext(world)
+
 	local root = ReactRoblox.createRoot(Instance.new("Folder"))
 	root:render(ReactRoblox.createPortal(e(App), Players.LocalPlayer.PlayerGui))
 end
