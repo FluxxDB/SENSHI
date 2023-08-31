@@ -53,4 +53,8 @@ defaults.TravelHeight = empty :: types.TravelHeight
 
 defaults.Spring = empty :: types.Spring
 
+defaults.Incantation = {
+	runeSequence = {},
+} :: types.Incantation
+
 return defaults

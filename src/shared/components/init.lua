@@ -22,6 +22,7 @@ components.Chunk = component("Chunk", defaults.Chunk)
 components.ChunkRef = component("ChunkRef", defaults.ChunkRef)
 components.HipHeight = component("HipHeight", defaults.HipHeight)
 components.TravelHeight = component("TravelHeight", defaults.TravelHeight)
+components.Incantation = component("Incantation", defaults.Incantation)
 
 -- Client Components
 components.Spring = component("Spring", defaults.Spring)
