@@ -22,6 +22,8 @@ constants.REPLICATED_COMPONENTS = {
 	"GamePlacement",
 	"Chunk",
 	"ChunkRef",
+
+	"Incantation",
 }
 
 return constants

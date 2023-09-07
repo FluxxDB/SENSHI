@@ -7,6 +7,7 @@ local e = React.createElement
 
 local assets = ReplicatedStorage:WaitForChild("Assets")
 local castingRunes = assets:WaitForChild("CastingRunes")
+local keyTypes = require(ReplicatedStorage.types["KeyTypes"])
 
 local cardinalClassToState = {
 	["TopSector"] = 1,
@@ -40,13 +41,13 @@ type Props = {
 	directionState: number,
 	mouseState: boolean,
 	cardinalClass: string,
-	rune: string,
+	rune: keyTypes.TRuneKey,
 	transparency: number,
 }
 
 local App: React.FC<Props> = function(props: Props, _)
 	local wasSelected, setWasSelected = React.useState(false)
-	local runeInfo = castingRunes:FindFirstChild(props.rune, true)
+	local runeInfo = castingRunes:FindFirstChild(props.rune.runeName, true)
 	local styles, api = ReactSpring.useSpring(function()
 		return { xScale = 0.37 }
 	end)
@@ -113,7 +114,7 @@ local App: React.FC<Props> = function(props: Props, _)
 			ImageTransparency = props.transparency,
 		}),
 		e("ImageLabel", {
-			Name = `Rune - {props.rune}`,
+			Name = `Rune - {props.rune.runeName}`,
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = runePlacements[props.cardinalClass],
 			Size = UDim2.fromScale(0.2, 0.2),

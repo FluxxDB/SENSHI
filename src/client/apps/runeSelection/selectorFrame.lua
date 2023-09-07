@@ -11,6 +11,7 @@ local e = React.createElement
 
 local assets = ReplicatedStorage:WaitForChild("Assets")
 local castingRunes = assets:WaitForChild("CastingRunes")
+local keyTypes = require(ReplicatedStorage.types["KeyTypes"])
 
 local cardinalCursor = require(script.Parent.Parent.cursor.cardinalCursor)
 local selectorHistory = require(script.Parent.selectorHistory)
@@ -23,7 +24,12 @@ local spellCastEndEvent = spellCastRemotes:Get("End") :: { SendToServer: (...any
 local spellCastCancelEvent = spellCastRemotes:Get("Cancel") :: { SendToServer: (...any) -> () }
 local spellCastSelectRuneEvent = spellCastRemotes:Get("SelectRune") :: { SendToServer: (...any) -> () }
 
-local runes = { "Xi", "Zeta", "Theta", "Sigma" }
+local runes: { keyTypes.TRuneKey } = {
+	{ id = 3, runeName = "Xi" },
+	{ id = 4, runeName = "Zeta" },
+	{ id = 2, runeName = "Theta" },
+	{ id = 1, runeName = "Sigma" },
+}
 
 type Props = {}
 
@@ -123,13 +129,13 @@ local RuneSelectionApp: React.FC<Props> = function(props: Props, _)
 						if inputState == Enum.UserInputState.Begin then
 							setMouseState(true)
 						elseif inputState == Enum.UserInputState.End then
-							local rune = runes[localDirectionState]
-							local runeInfo = castingRunes:FindFirstChild(rune, true)
+							local runeKey = runes[localDirectionState]
+							local runeInfo = castingRunes:FindFirstChild(runeKey.runeName, true)
 							if not runeInfo then
 								return
 							end
 
-							spellCastSelectRuneEvent:SendToServer(rune)
+							spellCastSelectRuneEvent:SendToServer(runeKey.id)
 
 							setMouseState(false)
 							setRunesState(function(oldRunes)
@@ -142,7 +148,7 @@ local RuneSelectionApp: React.FC<Props> = function(props: Props, _)
 									e(
 										"ImageLabel",
 										{
-											Name = rune,
+											Name = runeKey.runeName,
 											Size = UDim2.fromScale(1, 1),
 											BackgroundTransparency = 1,
 											Image = runeInfo:GetAttribute("Image"),

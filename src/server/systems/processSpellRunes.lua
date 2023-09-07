@@ -3,6 +3,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Assets = ReplicatedStorage.Assets
 local Packages = ReplicatedStorage.Packages
 local Shared = ReplicatedStorage.Shared
+local Factories = ReplicatedStorage.Factories
+
+local SpellFactory = require(Factories.Spells :: ModuleScript)
 
 local Matter = require(Packages.Matter)
 local useEvent = Matter.useEvent
@@ -39,6 +42,12 @@ function processSpellRunes(world: Matter.World)
 
 			-- TODO: Start casting spell
 			print(incantation.runeSequence)
+			if SpellFactory[incantation.runeSequence] == nil then
+				continue
+			end
+
+			local castSpell = SpellFactory[incantation.runeSequence]
+			castSpell(world)
 			world:remove(id, Incantation)
 		end
 	end
@@ -55,18 +64,23 @@ function processSpellRunes(world: Matter.World)
 	end
 
 	-- Spell Cast State: Rune Select
-	for id, player, rune in useEvent(spellCastSelectRuneEvent, spellCastSelectRuneEvent.Connect) do
+	for id, player, runeId in useEvent(spellCastSelectRuneEvent, spellCastSelectRuneEvent.Connect) do
 		for _, playerRef, incantation in world:query(PlayerRef, Incantation) do
 			if playerRef.instance ~= player then
 				continue
 			end
 
-			-- TODO: Check if mana pool is sufficiently full and subtract from it
+			local formattedRuneId = tostring(runeId)
 
+			if runeId / 10 < 1 then
+				formattedRuneId = "0" .. tostring(runeId)
+			end
+
+			-- TODO: Check if mana pool is sufficiently full and subtract from it
 			world:insert(
 				id,
-				incantation:patch({
-					runeSequence = table.insert(incantation.runeSequence, rune),
+				Incantation({
+					runeSequence = incantation.runeSequence .. formattedRuneId, -- TODO: Format the number to a string (1 --> 01 etc.)
 				})
 			)
 		end

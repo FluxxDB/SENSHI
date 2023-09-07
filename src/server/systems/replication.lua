@@ -65,7 +65,6 @@ function replication(world: Matter.World)
 
 			payload[tostring(entityId)] = entityPayload
 		end)
-		print(payload)
 
 		local playerPayload = {}
 
@@ -76,7 +75,6 @@ function replication(world: Matter.World)
 		end
 
 		payload[tostring(playerId)] = playerPayload
-		print(payload)
 		RemoteEvent:FireClient(player, payload)
 	end
 
@@ -84,14 +82,6 @@ function replication(world: Matter.World)
 
 	for component, name in replicatedComponents do
 		for entityId, record in world:queryChanged(component) do
-			if record.new == nil then
-				continue
-			end
-
-			if name == tostring(Components.Model) and record.new.instance then
-				continue
-			end
-
 			local key = tostring(entityId)
 			for id, playerRef, chunkRef in world:query(Components.PlayerRef, Components.ChunkRef) do
 				local changes = playerChanges[playerRef.instance]
