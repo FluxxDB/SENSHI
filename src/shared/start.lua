@@ -1,57 +1,46 @@
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Packages = ReplicatedStorage.Packages
-local Matter = require(ReplicatedStorage.Packages.Matter)
-local Plasma = require(Packages.Plasma)
-local HotReloader = require(Packages.Rewire).HotReloader
-local components = require(script.Parent.components)
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local packages = ReplicatedStorage.Packages
+local Matter = require(packages.Matter)
+local Plasma = require(packages.Plasma)
+local hotReloader = require(packages.Rewire).HotReloader
 
 local function start(containers)
-	local world = Matter.World.new()
-	local state = {}
+	local world = require(script.Parent.worldRegistry)
+	local state = require(script.Parent.worldState)
 
 	local debugger = Matter.Debugger.new(Plasma)
-
-	debugger.findInstanceFromEntity = function(id)
-		if not world:contains(id) then
-			return
-		end
-
-		local model = world:get(id, components.Model)
-
-		return model and model.model or nil
-	end
-
 	local loop = Matter.Loop.new(world, state, debugger:getWidgets())
 
 	-- Set up hot reloading
-
-	local hotReloader = HotReloader.new()
+	local hotReloader = hotReloader.new()
 
 	local firstRunSystems = {}
 	local systemsByModule = {}
+	local moduleSetups = {}
 
-	local function loadModule(module, context)
-		local originalModule = context.originalModule
-
-		local ok, system = pcall(require, module)
-
-		if not ok then
-			warn("Error when hot-reloading system", module.name, system)
+	local function runSetups()
+		if firstRunSystems == nil then
 			return
 		end
 
-		if firstRunSystems then
-			table.insert(firstRunSystems, system)
-		elseif systemsByModule[originalModule] then
-			loop:replaceSystem(systemsByModule[originalModule], system)
-			debugger:replaceSystem(systemsByModule[originalModule], system)
-		else
-			loop:scheduleSystem(system)
+		for path, data in moduleSetups do
+			if type(data) == "function" then
+				local ok, result = pcall(data, world, state)
+				if not ok then
+					warn("Error when hot-reloading setup", path.name, result)
+					continue
+				end
+			elseif type(data) == "table" and data.setup then
+				local ok, result = pcall(data.setup, world, state)
+				if not ok then
+					warn("Error when hot-reloading setup", path.name, result)
+					continue
+				end
+			end
 		end
-
-		systemsByModule[originalModule] = system
 	end
 
 	local function unloadModule(_, context)
@@ -66,10 +55,68 @@ local function start(containers)
 		end
 	end
 
-	for _, container in containers do
-		hotReloader:scan(container, loadModule, unloadModule)
+	local function loadModule(module, context)
+		local originalModule = context.originalModule
+
+		local ok, result = pcall(require, module)
+
+		if not ok then
+			warn("Error when hot-reloading system", module.name, result)
+			return
+		end
+
+		if type(result) == "table" then
+			if result.setups then
+				for _, path in result.setups do
+					local success, setup = pcall(require, path)
+
+					if not success then
+						warn("Error when hot-reloading setup", path.name, result)
+						continue
+					end
+
+					moduleSetups[path] = setup
+				end
+			end
+
+			if result.systems then
+				for _, path in result.systems do
+					ok, result = pcall(require, module)
+
+					if not ok then
+						warn("Error when hot-reloading system", module.name, result)
+						continue
+					end
+
+					if systemsByModule[path] == nil then
+						systemsByModule[path] = true
+						hotReloader:listen(path, loadModule, unloadModule)
+					end
+				end
+			end
+		else
+			if firstRunSystems then
+				table.insert(firstRunSystems, result)
+			elseif systemsByModule[originalModule] then
+				loop:replaceSystem(systemsByModule[originalModule], result)
+				debugger:replaceSystem(systemsByModule[originalModule], result)
+			else
+				loop:scheduleSystem(result)
+			end
+
+			systemsByModule[originalModule] = result
+		end
 	end
 
+	for _, container in containers do
+		for _, module in ipairs(container:GetChildren()) do
+			if module:IsA("ModuleScript") then
+				hotReloader:listen(module, loadModule, unloadModule)
+			end
+		end
+	end
+
+	runSetups()
 	loop:scheduleSystems(firstRunSystems)
 	firstRunSystems = nil :: any
 
@@ -86,13 +133,12 @@ local function start(containers)
 		UserInputService.InputBegan:Connect(function(input)
 			if input.KeyCode == Enum.KeyCode.F4 then
 				debugger:toggle()
-
 				state.debugEnabled = debugger.enabled
 			end
 		end)
 	else
 		debugger.authorize = function(player)
-			return player:GetRankInGroup(32723927) > 250
+			return true
 		end
 	end
 

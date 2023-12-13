@@ -1,10 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local start = require(ReplicatedStorage.Shared.start)
-local setupTags = require(ReplicatedStorage.Shared.setupTags)
+local start = require(ReplicatedStorage.shared.start)
 
-local world = start({
-	script.Parent.systems,
-	ReplicatedStorage.Shared.systems,
+start({
+	script.Parent.bundles,
+	script.Parent.core,
 })
-
-setupTags(world)

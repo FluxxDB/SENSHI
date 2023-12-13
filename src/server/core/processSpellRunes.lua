@@ -10,7 +10,7 @@ local SpellFactory = require(Factories.Spells :: ModuleScript)
 local Matter = require(Packages.Matter)
 local useEvent = Matter.useEvent
 
-local Components = require(Shared.components)
+local Components = require(Shared.componentRegistry)
 local PlayerRef = Components.PlayerRef
 local Incantation = Components.Incantation
 local ManaPool = Components.ManaPool

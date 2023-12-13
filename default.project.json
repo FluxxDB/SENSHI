@@ -1,23 +1,15 @@
 {
 	"name": "SENSHI",
-	"globIgnorePaths": [
-		"**/package.json",
-		"**/tsconfig.json"
-	],
 	"tree": {
 		"$className": "DataModel",
 		"ServerScriptService": {
 			"$className": "ServerScriptService",
-			"Framework": {
+			"ServerPackages": {
+				"$path": "ServerPackages"
+			},
+			"server": {
 				"$className": "Folder",
 				"$path": "src/server"
-			}
-		},
-		"ServerStorage": {
-			"$className": "ServerStorage",
-			"ServerPackages": {
-				"$className": "Folder",
-				"$path": "ServerPackages"
 			}
 		},
 		"Players": {
@@ -28,21 +20,19 @@
 		},
 		"ReplicatedStorage": {
 			"$className": "ReplicatedStorage",
-			"types": {
-				"$path": "src/types"
-			},
-			"Client": {
-				"$className": "Folder",
-				"$path": "src/client"
-			},
-			"Shared": {
-				"$className": "Folder",
-				"$path": "src/shared"
-			},
 			"Packages": {
 				"$path": "Packages"
 			},
-			"Vendor": {
+			"client": {
+				"$path": "src/client"
+			},
+			"shared": {
+				"$path": "src/shared"
+			},
+			"types": {
+				"$path": "src/types"
+			},
+			"vendor": {
 				"$path": "src/vendor"
 			}
 		},
