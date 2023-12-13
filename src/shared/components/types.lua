@@ -73,7 +73,12 @@ export type Spring = {
 }
 
 export type Incantation = {
-	runeSequence: number,
+	runeSequence: string,
+}
+
+export type ManaPool = {
+	mana: number,
+	capacity: number,
 }
 
 return {}

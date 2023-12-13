@@ -1,13 +1,19 @@
 local ContextActionService = game:GetService("ContextActionService")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
 
 local Packages = ReplicatedStorage:WaitForChild("Packages")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local useWorld = require(script.Parent.Parent.Parent.modules.ui.hooks.useWorld)
 
 local ReactSpring = require(Packages.ReactSpring)
 local React = require(Packages.React)
 local e = React.createElement
+
+local Components = require(Shared.components)
+local PlayerRef = Components.PlayerRef
+local ManaPool = Components.ManaPool
 
 local assets = ReplicatedStorage:WaitForChild("Assets")
 local castingRunes = assets:WaitForChild("CastingRunes")
@@ -34,6 +40,7 @@ local runes: { keyTypes.TRuneKey } = {
 type Props = {}
 
 local RuneSelectionApp: React.FC<Props> = function(props: Props, _)
+	local world = useWorld()
 	local directionState, setDirectionState = React.useState(0)
 	local mouseState, setMouseState = React.useState(false)
 	local runesState, setRunesState = React.useState({})
@@ -47,6 +54,7 @@ local RuneSelectionApp: React.FC<Props> = function(props: Props, _)
 
 	React.useEffect(function()
 		-- TODO: Add in background blur with the motors
+		-- TODO: Play sound effects
 
 		-- "Smooth" Cursor
 		-- local lastMousePosition = 0
@@ -135,37 +143,55 @@ local RuneSelectionApp: React.FC<Props> = function(props: Props, _)
 								return
 							end
 
-							spellCastSelectRuneEvent:SendToServer(runeKey.id)
+							local hasSufficentMana = true
+							for _, playerRef, manaPool in world:query(PlayerRef, ManaPool) do
+								if playerRef.instance ~= Players.LocalPlayer then
+									continue
+								end
+
+								local manaCost = runeInfo:GetAttribute("ManaCost")
+								if manaPool.mana < manaCost then
+									hasSufficentMana = false
+								end
+							end
+
+							if hasSufficentMana then
+								spellCastSelectRuneEvent:SendToServer(runeKey.id, runeKey.runeName)
+
+								setRunesState(function(oldRunes)
+									local newRunes = {}
+									if #oldRunes > 0 then
+										newRunes = { table.unpack(oldRunes) }
+									end
+									table.insert(
+										newRunes,
+										e(
+											"ImageLabel",
+											{
+												Name = runeKey.runeName,
+												Size = UDim2.fromScale(1, 1),
+												BackgroundTransparency = 1,
+												Image = runeInfo:GetAttribute("Image"),
+												ImageTransparency = styles.transparency,
+												ImageColor3 = runeInfo.Value,
+												LayoutOrder = -(#oldRunes + 1),
+											},
+											e("UIAspectRatioConstraint", {
+												AspectRatio = 1,
+												AspectType = Enum.AspectType.ScaleWithParentSize,
+												DominantAxis = Enum.DominantAxis.Width,
+											})
+										)
+									)
+
+									return newRunes
+								end)
+							else
+								-- TODO: Don't add rune to history, don't play usual selection effect (shake red instead)
+								print("Insufficent Mana")
+							end
 
 							setMouseState(false)
-							setRunesState(function(oldRunes)
-								local newRunes = {}
-								if #oldRunes > 0 then
-									newRunes = { table.unpack(oldRunes) }
-								end
-								table.insert(
-									newRunes,
-									e(
-										"ImageLabel",
-										{
-											Name = runeKey.runeName,
-											Size = UDim2.fromScale(1, 1),
-											BackgroundTransparency = 1,
-											Image = runeInfo:GetAttribute("Image"),
-											ImageTransparency = styles.transparency,
-											ImageColor3 = runeInfo.Value,
-											LayoutOrder = -(#oldRunes + 1),
-										},
-										e("UIAspectRatioConstraint", {
-											AspectRatio = 1,
-											AspectType = Enum.AspectType.ScaleWithParentSize,
-											DominantAxis = Enum.DominantAxis.Width,
-										})
-									)
-								)
-
-								return newRunes
-							end)
 						end
 					end, false, Enum.UserInputType.MouseButton1)
 

@@ -18,6 +18,7 @@ local Model = Components.Model
 local Health = Components.Health
 local Movement = Components.Movement
 local GamePlacement = Components.GamePlacement
+local ManaPool = Components.ManaPool
 
 local remotes = require(Shared.remotes)
 
@@ -67,6 +68,10 @@ function spawnPlayer(world: Matter.World)
 			GamePlacement({
 				position = position,
 				orientation = 0,
+			}),
+			ManaPool({
+				mana = 100,
+				capacity = 100, --! Debugging Stats; Normally would derive from multiple stats that are saved in datastore
 			})
 		)
 

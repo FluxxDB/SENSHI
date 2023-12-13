@@ -13,6 +13,10 @@ local useEvent = Matter.useEvent
 local Components = require(Shared.components)
 local PlayerRef = Components.PlayerRef
 local Incantation = Components.Incantation
+local ManaPool = Components.ManaPool
+
+local assets = ReplicatedStorage:WaitForChild("Assets")
+local castingRunes = assets:WaitForChild("CastingRunes")
 
 local remotes = require(Shared.remotes)
 local spellCastRemotes = remotes.Server:GetNamespace("SpellCast")
@@ -64,23 +68,34 @@ function processSpellRunes(world: Matter.World)
 	end
 
 	-- Spell Cast State: Rune Select
-	for id, player, runeId in useEvent(spellCastSelectRuneEvent, spellCastSelectRuneEvent.Connect) do
-		for _, playerRef, incantation in world:query(PlayerRef, Incantation) do
+	for id, player, runeId, runeName in useEvent(spellCastSelectRuneEvent, spellCastSelectRuneEvent.Connect) do
+		for _, playerRef, incantation, manaPool in world:query(PlayerRef, Incantation, ManaPool) do
 			if playerRef.instance ~= player then
 				continue
 			end
 
-			local formattedRuneId = tostring(runeId)
+			local runeInfo = castingRunes:FindFirstChild(runeName, true)
+			if not runeInfo then
+				continue
+			end
 
+			local formattedRuneId = tostring(runeId)
 			if runeId / 10 < 1 then
 				formattedRuneId = "0" .. tostring(runeId)
 			end
 
-			-- TODO: Check if mana pool is sufficiently full and subtract from it
+			local manaCost = runeInfo:GetAttribute("ManaCost")
+			if manaPool.mana < manaCost then
+				continue
+			end
+
 			world:insert(
 				id,
 				Incantation({
-					runeSequence = incantation.runeSequence .. formattedRuneId, -- TODO: Format the number to a string (1 --> 01 etc.)
+					runeSequence = incantation.runeSequence .. formattedRuneId,
+				}),
+				manaPool:patch({
+					mana = manaPool.mana - manaCost,
 				})
 			)
 		end

@@ -57,4 +57,9 @@ defaults.Incantation = {
 	runeSequence = "",
 } :: types.Incantation
 
+defaults.ManaPool = {
+	mana = 0,
+	capacity = 0,
+} :: types.ManaPool
+
 return defaults
