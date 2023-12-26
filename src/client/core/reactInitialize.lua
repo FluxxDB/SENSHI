@@ -1,21 +1,21 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
+-- local Players = game:GetService("Players")
 local Packages = ReplicatedStorage.Packages
-local Client = ReplicatedStorage.Client
+-- local Client = ReplicatedStorage.Client
 
 local Matter = require(Packages.Matter)
-local React = require(Packages.React)
-local ReactRoblox = require(Packages.ReactRoblox)
+-- local React = require(Packages.React)
+-- local ReactRoblox = require(Packages.ReactRoblox)
 
-local MatterWorldContext = require(Client.modules.ui.MatterWorldContext)
-local App = require(Client.apps.App)
-local e = React.createElement
+-- local MatterWorldContext = require(Client.modules.ui.MatterWorldContext)
+-- local App = require(Client.apps.App)
+-- local e = React.createElement
 
 function reactInitialize(world: Matter.World, state)
-	MatterWorldContext(world)
+	-- 	MatterWorldContext(world)
 
-	local root = ReactRoblox.createRoot(Instance.new("Folder"))
-	root:render(ReactRoblox.createPortal(e(App), Players.LocalPlayer.PlayerGui))
+	-- 	local root = ReactRoblox.createRoot(Instance.new("Folder"))
+	-- 	root:render(ReactRoblox.createPortal(e(App), Players.LocalPlayer.PlayerGui))
 end
 
 return reactInitialize
