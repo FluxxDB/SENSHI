@@ -6,6 +6,7 @@ local packages = ReplicatedStorage.Packages
 local Matter = require(packages.Matter)
 local Plasma = require(packages.Plasma)
 local hotReloader = require(packages.Rewire).HotReloader
+local componentRegistry = require(script.Parent.componentRegistry)
 
 local function start(containers)
 	local world = require(script.Parent.worldRegistry)
@@ -20,6 +21,26 @@ local function start(containers)
 	local firstRunSystems = {}
 	local systemsByModule = {}
 	local moduleSetups = {}
+
+	local function gatherBundles(containers)
+		for _, container in containers do
+			for _, bundle in container:GetChildren() do
+				local module
+
+				if bundle:IsA("ModuleScript") and bundle.name == "components" then
+					module = bundle
+				else
+					module = bundle:FindFirstChild("components")
+				end
+
+				if module and module:IsA("ModuleScript") then
+					for name, component in require(module) do
+						componentRegistry[name] = component
+					end
+				end
+			end
+		end
+	end
 
 	local function runSetups()
 		if firstRunSystems == nil then
@@ -88,9 +109,13 @@ local function start(containers)
 						continue
 					end
 
-					if systemsByModule[path] == nil then
-						systemsByModule[path] = true
-						hotReloader:listen(path, loadModule, unloadModule)
+					if firstRunSystems then
+						table.insert(firstRunSystems, result)
+					elseif systemsByModule[originalModule] then
+						loop:replaceSystem(systemsByModule[originalModule], result)
+						debugger:replaceSystem(systemsByModule[originalModule], result)
+					else
+						loop:scheduleSystem(result)
 					end
 				end
 			end
@@ -115,6 +140,19 @@ local function start(containers)
 			end
 		end
 	end
+
+	gatherBundles({
+		ReplicatedStorage.shared.core,
+		ReplicatedStorage.shared.bundles,
+
+		if RunService:IsClient()
+			then ReplicatedStorage.client.bundles
+			else game:GetService("ServerScriptService").server.bundles,
+
+		if RunService:IsClient()
+			then ReplicatedStorage.client.core
+			else game:GetService("ServerScriptService").server.core,
+	})
 
 	runSetups()
 	loop:scheduleSystems(firstRunSystems)
