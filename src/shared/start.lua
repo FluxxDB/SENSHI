@@ -22,24 +22,41 @@ local function start(containers)
 	local systemsByModule = {}
 	local moduleSetups = {}
 
-	local function gatherBundles(containers)
-		for _, container in containers do
-			for _, bundle in container:GetChildren() do
-				local module
+	for _, container in
+		{
+			ReplicatedStorage.shared.core,
+			ReplicatedStorage.shared.bundles,
 
-				if bundle:IsA("ModuleScript") and bundle.name == "components" then
-					module = bundle
-				else
-					module = bundle:FindFirstChild("components")
-				end
+			if RunService:IsClient()
+				then ReplicatedStorage.client.bundles
+				else game:GetService("ServerScriptService").server.bundles,
 
-				if module and module:IsA("ModuleScript") then
-					for name, component in require(module) do
-						componentRegistry[name] = component
-					end
-				end
+			if RunService:IsClient()
+				then ReplicatedStorage.client.core
+				else game:GetService("ServerScriptService").server.core,
+		}
+	do
+		for _, bundle in container:GetChildren() do
+			local module
+
+			if bundle:IsA("ModuleScript") and bundle.name == "components" then
+				module = bundle
+			else
+				module = bundle:FindFirstChild("components")
+			end
+
+			if module and module:IsA("ModuleScript") then
+				require(module)
 			end
 		end
+	end
+
+	local function safeCall(path, ...)
+		local ok, result = pcall(...)
+		if not ok then
+			warn("Error when hot-reloading", path.name, result)
+		end
+		return ok, result
 	end
 
 	local function runSetups()
@@ -49,19 +66,28 @@ local function start(containers)
 
 		for path, data in moduleSetups do
 			if type(data) == "function" then
-				local ok, result = pcall(data, world, state)
-				if not ok then
-					warn("Error when hot-reloading setup", path.name, result)
-					continue
-				end
+				safeCall(path, data, world, state)
 			elseif type(data) == "table" and data.setup then
-				local ok, result = pcall(data.setup, world, state)
-				if not ok then
-					warn("Error when hot-reloading setup", path.name, result)
-					continue
-				end
+				safeCall(path, data.setup, world, state)
 			end
 		end
+	end
+
+	local function scheduleSystem(path, system)
+		if firstRunSystems then
+			if type(system) == "table" and system.systems == nil then
+				table.insert(firstRunSystems, system)
+			elseif type(system) == "function" then
+				table.insert(firstRunSystems, system)
+			end
+		elseif systemsByModule[path] then
+			loop:replaceSystem(systemsByModule[path], system)
+			debugger:replaceSystem(systemsByModule[path], system)
+		else
+			loop:scheduleSystem(system)
+		end
+
+		systemsByModule[path] = system
 	end
 
 	local function unloadModule(_, context)
@@ -78,82 +104,50 @@ local function start(containers)
 
 	local function loadModule(module, context)
 		local originalModule = context.originalModule
+		local ok, result = safeCall(module, require, module)
 
-		local ok, result = pcall(require, module)
-
-		if not ok then
-			warn("Error when hot-reloading system", module.name, result)
+		if ok == false then
 			return
 		end
 
-		if type(result) == "table" then
-			if result.setups then
-				for _, path in result.setups do
-					local success, setup = pcall(require, path)
-
-					if not success then
-						warn("Error when hot-reloading setup", path.name, result)
-						continue
-					end
-
-					moduleSetups[path] = setup
-				end
-			end
-
-			if result.systems then
-				for _, path in result.systems do
-					ok, result = pcall(require, module)
-
-					if not ok then
-						warn("Error when hot-reloading system", module.name, result)
-						continue
-					end
-
-					if firstRunSystems then
-						table.insert(firstRunSystems, result)
-					elseif systemsByModule[originalModule] then
-						loop:replaceSystem(systemsByModule[originalModule], result)
-						debugger:replaceSystem(systemsByModule[originalModule], result)
-					else
-						loop:scheduleSystem(result)
-					end
-				end
-			end
-		else
-			if firstRunSystems then
-				table.insert(firstRunSystems, result)
-			elseif systemsByModule[originalModule] then
-				loop:replaceSystem(systemsByModule[originalModule], result)
-				debugger:replaceSystem(systemsByModule[originalModule], result)
-			else
-				loop:scheduleSystem(result)
-			end
-
-			systemsByModule[originalModule] = result
+		if type(result) == "function" then
+			scheduleSystem(originalModule, result)
 		end
 	end
 
 	for _, container in containers do
-		for _, module in ipairs(container:GetChildren()) do
+		for _, module in container:GetChildren() do
 			if module:IsA("ModuleScript") then
+				local ok, result = safeCall(module, require, module)
+
+				if ok and type(result) == "table" then
+					if result.systems then
+						for _, path in result.systems do
+							local success, system = safeCall(path, require, path)
+
+							if success then
+								scheduleSystem(path, system)
+							end
+						end
+					end
+
+					if result.setups then
+						for _, path in result.setups do
+							local success, setup = safeCall(path, require, path)
+
+							if success then
+								moduleSetups[path] = setup
+							end
+						end
+					end
+				end
+
 				hotReloader:listen(module, loadModule, unloadModule)
 			end
 		end
 	end
 
-	gatherBundles({
-		ReplicatedStorage.shared.core,
-		ReplicatedStorage.shared.bundles,
-
-		if RunService:IsClient()
-			then ReplicatedStorage.client.bundles
-			else game:GetService("ServerScriptService").server.bundles,
-
-		if RunService:IsClient()
-			then ReplicatedStorage.client.core
-			else game:GetService("ServerScriptService").server.core,
-	})
-
+	print(firstRunSystems, componentRegistry)
 	runSetups()
 	loop:scheduleSystems(firstRunSystems)
 	firstRunSystems = nil :: any
