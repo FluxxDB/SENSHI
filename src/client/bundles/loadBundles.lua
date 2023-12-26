@@ -8,5 +8,7 @@ return {
 		bundles.farlands.reflectOriginRefTransform,
 		bundles.farlands.updateGridFromTransform,
 		bundles.farlands.updateOriginFromGrid,
+
+		bundles.actionsManager.forwardInputs,
 	},
 }

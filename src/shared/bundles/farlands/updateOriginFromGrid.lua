@@ -2,16 +2,18 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Matter = require(ReplicatedStorage.Packages.Matter)
-local Components = require(ReplicatedStorage.shared.components)
+local componentRegistry = require(ReplicatedStorage.shared.componentRegistry)
 
-local ECS = script.Parent.Parent
-local constants = require(ECS.farlands.constants)
+local constants = require(script.Parent.constants)
 local GRID_EDGE_LENGTH = constants.GRID_EDGE_LENGTH
 
-local function updateOriginFromGrid(world: matter.World)
+local GridCell = componentRegistry.GridCell
+local OriginRef = componentRegistry.OriginRef
+
+local function updateOriginFromGrid(world: Matter.World)
 	local worldShift = workspace:GetAttribute("Origin")
 
-	for id, _, gridCell in world:query(Components.OriginRef, Components.GridCell) do
+	for id, _, gridCell in world:query(OriginRef, GridCell) do
 		if gridCell.position ~= worldShift then
 			Workspace:SetAttribute("Origin", gridCell.position)
 			Workspace:PivotTo(CFrame.new(-gridCell.position * GRID_EDGE_LENGTH))
@@ -21,5 +23,5 @@ end
 
 return {
 	system = updateOriginFromGrid,
-	priority = math.huge,
+	priority = 1.1e9,
 }

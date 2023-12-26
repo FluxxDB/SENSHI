@@ -19,4 +19,10 @@ return Net.CreateDefinitions({
 		Select = Net.Definitions.ClientToServerEvent(),
 		Delete = Net.Definitions.ClientToServerEvent(),
 	}),
+	SpellCast = Net.Definitions.Namespace({
+		Begin = Net.Definitions.ClientToServerEvent(),
+		End = Net.Definitions.ClientToServerEvent(),
+		Cancel = Net.Definitions.ClientToServerEvent(),
+		SelectRune = Net.Definitions.ClientToServerEvent(),
+	}),
 })

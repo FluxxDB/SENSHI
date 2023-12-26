@@ -10,6 +10,10 @@ export type Health = {
 	max: number,
 }
 
+export type Transform = {
+	translation: CFrame,
+}
+
 export type Position = {
 	value: Vector3,
 }
@@ -37,6 +41,8 @@ components.Health = createComponent("Health", {
 	current = 100,
 	max = 100,
 }) :: Component<Health>
+
+components.Transform = createComponent("Transform") :: Component<Transform>
 
 components.Model = createComponent("Model") :: Component<Model>
 

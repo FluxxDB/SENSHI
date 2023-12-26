@@ -4,7 +4,7 @@ return {
 	},
 	systems = {
 		script.autosave,
-		script.loadSaves,
+		script.loadSave,
 		script.unloadSaves,
 		script.saveTriggered,
 		script.releaseUnloaded,

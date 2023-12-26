@@ -1,13 +1,13 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
 local packages = ReplicatedStorage.Packages
-local serializer = require(packages.serializer)
-local matter = require(packages.matter)
+
+local matter = require(packages.Matter)
+local Serializer = require(packages.Serializer)
 
 local components = require(script.Parent.components)
 local datastore = require(script.Parent.datastore)
 
-local function load(world: matter.World)
+local function loadSave(world: matter.World)
 	for id, save in world:query(components.Save):without(components.Loaded) do
 		local document = datastore.documents[save.userId]
 
@@ -19,7 +19,7 @@ local function load(world: matter.World)
 		local componentData = playerData.components[save.key]
 
 		if componentData then
-			componentData = serializer.deserializeTableDeep(componentData)
+			componentData = Serializer.deserializeTableDeep(componentData)
 		else
 			world:insert(
 				id,
@@ -45,7 +45,4 @@ local function load(world: matter.World)
 	end
 end
 
-return {
-	system = load,
-	priority = 1e6,
-}
+return loadSave

@@ -3,13 +3,15 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Matter = require(ReplicatedStorage.Packages.Matter)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 
-local Components = require(ReplicatedStorage.shared.components)
+local componentRegistry = require(ReplicatedStorage.shared.componentRegistry)
 
 local entityMap = {}
 local gridEntered = Signal.new()
 
+local GridCell = componentRegistry.GridCell
+
 local function updateGridFromTransform(world: Matter.World)
-	for id, record in world:queryChanged(Components.GridCell) do
+	for id, record in world:queryChanged(GridCell) do
 		local key = tostring(id)
 		local newGridCell = record.new
 		local oldGridCell = record.old

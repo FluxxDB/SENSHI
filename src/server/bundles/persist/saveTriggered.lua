@@ -1,6 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local packages = ReplicatedStorage.Packages
 
+local Serializer = require(packages.Serializer)
 local Matter = require(packages.Matter)
 local Sift = require(packages.Sift)
 
@@ -8,8 +9,10 @@ local components = require(script.Parent.components)
 local datastore = require(script.Parent.datastore)
 local dictionary = Sift.Dictionary
 
+local Save = components.Save
+
 local function saveTriggered(world: Matter.World)
-	for id, record in world:queryChanged(components.Save) do
+	for id, record in world:queryChanged(Save) do
 		local save = record.new
 
 		if save ~= nil and save.loaded then
@@ -37,4 +40,10 @@ local function saveTriggered(world: Matter.World)
 	end
 end
 
-return saveTriggered
+return {
+	system = saveTriggered,
+	before = {
+		require(script.Parent.loadSave),
+		require(script.Parent.unloadSaves),
+	},
+}

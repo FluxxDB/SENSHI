@@ -13,7 +13,7 @@ local t = require(packages.t)
 local playerLoaded = Signal.new()
 
 local documents = {} :: { [string]: Lapis.Document<any> }
-local collection = Lapis.createCollection("zenkai", {
+local collection = Lapis.createCollection("PlayerData", {
 	defaultData = {
 		components = {},
 	},

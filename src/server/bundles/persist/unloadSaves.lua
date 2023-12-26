@@ -6,18 +6,19 @@ local Matter = require(packages.Matter)
 local components = require(script.Parent.components)
 local datastore = require(script.Parent.datastore)
 
+local Save = components.Save
+local Unload = components.Unload
+local Unloaded = components.Unloaded
+
 local function unloadSaves(world: Matter.World)
-	for id, save in world:query(components.Save, components.Unload):without(components.Unloaded) do
+	for id, save in world:query(Save, Unload):without(Unloaded) do
 		local document = datastore.documents[save.userId]
 		if document == nil or save.loaded == nil then
 			continue
 		end
 
-		world:insert(id, save:patch({}), components.Unloaded({}))
+		world:insert(id, save:patch({}), Unloaded({}))
 	end
 end
 
-return {
-	system = unloadSaves,
-	before = { require(script.Parent.saveTriggered) },
-}
+return unloadSaves

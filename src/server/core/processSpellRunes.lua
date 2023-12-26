@@ -2,7 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Assets = ReplicatedStorage.Assets
 local Packages = ReplicatedStorage.Packages
-local Shared = ReplicatedStorage.Shared
+local Shared = ReplicatedStorage.shared
 local Factories = ReplicatedStorage.Factories
 
 local SpellFactory = require(Factories.Spells :: ModuleScript)

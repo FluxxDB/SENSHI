@@ -1,13 +1,16 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Matter = require(ReplicatedStorage.Packages.Matter)
 
-local components = require(ReplicatedStorage.shared.componentRegistry)
-local ECS = script.Parent.Parent
-local helpers = require(ECS.farlands.helpers)
-local constants = require(ECS.farlands.constants)
+local componentRegistry = require(ReplicatedStorage.shared.componentRegistry)
 
-local function updateGridFromTransform(world: matter.World)
-	for id, record in world:queryChanged(components.Transform) do
+local constants = require(script.Parent.constants)
+local helpers = require(script.Parent.helpers)
+
+local Transform = componentRegistry.Transform
+local GridCell = componentRegistry.GridCell
+
+local function updateGridFromTransform(world: Matter.World)
+	for id, record in world:queryChanged(Transform) do
 		local transform = record.new
 
 		if transform == nil or transform.doNotReconcile then
@@ -26,11 +29,11 @@ local function updateGridFromTransform(world: matter.World)
 
 		world:insert(
 			id,
-			components.Transform({
+			Transform({
 				translation = CFrame.new(delta) * CFrame.Angles(translation:ToEulerAnglesXYZ()),
 				doNotReconcile = true,
 			}),
-			components.GridCell({
+			GridCell({
 				position = grid,
 			})
 		)

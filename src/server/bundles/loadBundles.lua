@@ -7,5 +7,7 @@ return {
 	systems = {
 		bundles.farlands.updateGridFromTransform,
 		bundles.farlands.updateEntityMapFromGridCell,
+
+		bundles.actionsManager.invokeSignals,
 	},
 }

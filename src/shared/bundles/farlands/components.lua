@@ -1,10 +1,8 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local matterTypes = require(ReplicatedStorage.types.matter)
-local Matter = require(ReplicatedStorage.Packages.Matter)
+local createComponent = require(ReplicatedStorage.shared.createComponent)
 
-type Component<T> = matterTypes.Component<T>
+type Component<T> = createComponent.Component<T>
 
-local component = Matter.component
 local components = {}
 
 export type OriginRef = {
@@ -15,8 +13,8 @@ export type GridCell = {
 	position: Vector3,
 }
 
-components.OriginRef = component("OriginRef") :: Component<OriginRef>
-components.GridCell = component("GridCell", {
+components.OriginRef = createComponent("OriginRef") :: Component<OriginRef>
+components.GridCell = createComponent("GridCell", {
 	position = Vector3.zero,
 }) :: Component<GridCell>
 
