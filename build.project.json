@@ -6,13 +6,13 @@
     "ReplicatedStorage": { 
       "$className": "ReplicatedStorage",
       "packages": { "$path": "Packages" },
-      "types": { "$path": "src/types" },
-      "client": { "$path": "src/client" },
-      "shared": { "$path": "src/shared" }
+      "types": { "$path": "out/types" },
+      "client": { "$path": "out/client" },
+      "shared": { "$path": "out/shared" }
     },
     "ServerScriptService": {
       "$className": "ServerScriptService",
-      "server": { "$path": "src/server" }
+      "server": { "$path": "out/server" }
     },
     "ServerStorage": {
       "$className": "ServerStorage",

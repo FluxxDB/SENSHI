@@ -1,0 +1,3 @@
+return {} :: {
+	[any]: (...any) -> any,
+}

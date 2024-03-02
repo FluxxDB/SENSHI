@@ -1,3 +1,21 @@
 {
-  "luau-lsp.sourcemap.rojoProjectFile": "default.project.json"
+  "editor.formatOnSave": true,
+  "luau-lsp.completion.imports.enabled": true,
+  "luau-lsp.completion.imports.suggestServices": true,
+  "luau-lsp.completion.imports.suggestRequires": false,
+  "luau-lsp.require.mode": "relativeToFile",
+  "luau-lsp.require.directoryAliases": {
+    "@ui": "src/client/ui",
+    "@types": "src/types",
+
+    "@client": "src/client",
+    "@server": "src/server",
+    "@shared": "src/shared",
+
+    "@bundles": "src/shared/bundles",
+    "@server-bundles": "src/server/bundles",
+
+    "@packages": "Packages",
+    "@server-packages": "ServerPackages"
+  }
 }
