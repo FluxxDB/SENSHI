@@ -6,10 +6,10 @@ W.I.P.
 
 * [aftman](https://github.com/LPGhatguy/aftman)
 
-### Windows
+#### Windows
 * PowerShell
 
-### Linux
+#### Linux
 * [inotify-tools](https://github.com/inotify-tools/inotify-tools)
 
 ### MacOs
