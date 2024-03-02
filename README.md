@@ -21,7 +21,7 @@ To get started with the Wisp Project Template, you'll first need to run the inst
 
 ```bash
 # This script will install aftman dependencies then install wally packages.
-./scripts/install.sh
+sh scripts/install.sh
 ```
 
 ## Usage
@@ -31,7 +31,7 @@ Once you’ve installed, you can start the watch script by running:
 ```bash
 # This script starts rojo, darklua, and a custom script
 # that compiles component types into one file.
-./scripts/watch.sh
+sh scripts/dev.sh
 ```
 
 ## License
