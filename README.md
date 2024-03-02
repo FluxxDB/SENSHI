@@ -12,7 +12,7 @@ W.I.P.
 #### Linux
 * [inotify-tools](https://github.com/inotify-tools/inotify-tools)
 
-### MacOs
+#### MacOs
 * Not supported :( (I don't own a Mac)
 
 ## Installation
